@@ -184,17 +184,15 @@
     loadingMsg.style.display = 'block';
 
     try {
-        // Použijeme CORS proxy, aby prohlížeč neblokoval požadavek na Mojang API
-        const mojangUrl = `https://api.mojang.com/users/profiles/minecraft/${encodeURIComponent(username)}`;
-        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(mojangUrl)}`;
+        // Použijeme Ashcon API, které vrací UUID podle jména a podporuje CORS (žádná proxy není potřeba!)
+        const res = await fetch(`https://api.ashcon.mojang.com/v2/user/${encodeURIComponent(username)}`);
         
-        const mojangRes = await fetch(proxyUrl);
-        if (!mojangRes.ok) {
-            throw new Error("Hráč s tímto jménem nebyl v Minecraftu nalezen nebo proxy selhala.");
+        if (!res.ok) {
+            throw new Error("Hráč s tímto jménem nebyl v Minecraftu nalezen.");
         }
 
-        const mojangData = await mojangRes.json();
-        const uuid = mojangData.id; // UUID hráče
+        const data = await res.json();
+        const uuid = data.uuid.replace(/-/g, ''); // Odstraníme pomlčky z UUID, aby to sedělo pro Hypixel
 
         // Volání Hypixel SkyBlock Profiles API
         const hypixelRes = await fetch(`https://api.hypixel.net/skyblock/profiles?key=${HYPIXEL_API_KEY}&uuid=${uuid}`);
