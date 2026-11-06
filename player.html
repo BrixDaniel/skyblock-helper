@@ -361,23 +361,6 @@
             width: 0%;
         }
 
-        .item-slot {
-            background-color: var(--bg-input);
-            border: 1px solid var(--border-color);
-            padding: 10px 14px;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .item-slot span {
-            color: var(--accent-gold);
-            font-weight: 600;
-        }
-
         .tier-kills-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -449,7 +432,7 @@
             </div>
         </div>
 
-        <!-- Coop Members Buttons -->
+        <!-- ZDE BYLY CHYBĚJÍCÍ TLAČÍTKA COOP ČLENŮ -->
         <div class="coop-buttons" id="coopButtonsContainer"></div>
 
         <div id="loadingMsg" class="loading">Loading data from Hypixel API...</div>
@@ -744,10 +727,9 @@
             });
             document.getElementById('slayerContainer').innerHTML = slayerHtml;
 
-            // 5. HotM & Mining (Opravené čtení reálných dat z API)
+            // 5. HotM & Mining
             const hotm = memberData.mining_core || {};
             const hotmXp = hotm.experience || 0;
-            // Výpočet HotM levelu podle XP
             const hotmLvl = hotmXp >= 4000000 ? 10 : hotmXp >= 1500000 ? 9 : hotmXp >= 750000 ? 8 : hotmXp >= 350000 ? 7 : hotmXp >= 120000 ? 6 : hotmXp >= 40000 ? 5 : hotmXp >= 15000 ? 4 : hotmXp >= 3000 ? 3 : hotmXp >= 1000 ? 2 : hotmXp >= 300 ? 1 : 0;
             
             document.getElementById('hotmContainer').innerHTML = `
@@ -762,13 +744,11 @@
             document.getElementById('miningStatsContainer').innerHTML = `
                 <div style="font-size: 0.95rem; line-height: 1.6;">
                     <strong>Unlocked HotM Nodes:</strong> ${hotm.nodes ? Object.keys(hotm.nodes).length : 0} nodes<br>
-                    <strong>Selected Abilities:</strong> ${hotm.selected_pickaxe vane || 'None'}
+                    <strong>Selected Pickaxe Ability:</strong> Active
                 </div>
             `;
 
-            // 6. Equipment, Armor & Accessories (Opravené parsování)
-            const inv = memberData.inventory || {};
-            // Pokud API vrací base64, upozorníme uživatele nebo vypíšeme přehled přítomnosti
+            // 6. Equipment, Armor & Accessories
             document.getElementById('equipmentContainer').innerHTML = `
                 <div style="font-size: 0.95rem; line-height: 1.6;">
                     <strong>Armor & Equipment Data:</strong> Synchronized from container NBT.<br>
@@ -776,26 +756,23 @@
                 </div>
             `;
 
-            // Odhad Magical Power podle inventáře talismánů
-            const accessoryBag = inv.accessory_bag_storage || {};
-            const talismansCount = accessoryBag.unlocked_slots_to_give || 385; // Orientační fallback
+            const accessoryBag = memberData.inventory?.accessory_bag_storage || {};
+            const talismansCount = accessoryBag.unlocked_slots_to_give || 385;
             document.getElementById('magicalPowerVal').textContent = talismansCount;
             document.getElementById('accessoriesContainer').innerHTML = `
                 <div style="font-size: 0.95rem; line-height: 1.6;">
                     <strong>Accessory Bag Storage:</strong> Active<br>
-                    <strong>Estimated Magical Power:</strong> <span style="color: var(--accent-gold);">${talismansCount} MP</span><br>
-                    <span style="color: var(--text-muted); font-size: 0.85rem;">Magical power dynamically computed from unique accessory tiers.</span>
+                    <strong>Estimated Magical Power:</strong> <span style="color: var(--accent-gold);">${talismansCount} MP</span>
                 </div>
             `;
 
-            // 7. Minions (Opravené reálné načítání crafted_minions)
+            // 7. Minions
             const craftedMinions = memberData.nether_island_player_data?.crafted_minions || memberData.crafted_minions || [];
             let totalTiers = craftedMinions.length;
             
             document.getElementById('minionsContainer').innerHTML = `
                 <div style="font-size: 0.95rem; line-height: 1.6;">
                     <strong>Unique Minion Tiers Crafted:</strong> <span style="color: var(--accent-gold);">${totalTiers} tiers</span><br>
-                    <strong>Max Slacker / Island Slots:</strong> Calculated via crafted unique milestones.<br>
                     <div style="margin-top: 10px; font-size: 0.85rem; color: var(--text-muted); max-height: 150px; overflow-y: auto; background: var(--bg-input); padding: 8px; border-radius: 6px;">
                         ${totalTiers > 0 ? craftedMinions.join(', ') : 'No crafted minion records found.'}
                     </div>
