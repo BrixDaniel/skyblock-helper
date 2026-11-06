@@ -8,15 +8,11 @@
         :root {
             --bg-dark: #0B0E14;
             --bg-card: #161C2A;
-            --bg-input: #1C2436;
             --border-color: #2A364F;
             --text-main: #E2E8F0;
             --text-muted: #8E9BAE;
             --accent-gold: #F59E0B;
             --accent-gold-hover: #D97706;
-            --profile-active: #1E293B;
-            --accent-green: #10B981;
-            --accent-blue: #38BDF8;
         }
 
         * {
@@ -31,402 +27,78 @@
             color: var(--text-main);
             padding: 24px;
             min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .container {
-            max-width: 1280px;
-            margin: 0 auto;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
         }
 
         header {
-            margin-bottom: 24px;
+            margin-bottom: 32px;
         }
 
         header h1 {
-            font-size: 1.8rem;
+            font-size: 2rem;
             color: #FFFFFF;
         }
+
         header h1 span {
             color: var(--accent-gold);
         }
+
         header p {
             color: var(--text-muted);
-            margin-top: 4px;
+            margin-top: 8px;
+            font-size: 0.95rem;
         }
 
-        .settings-card {
+        .coop-card {
             background-color: var(--bg-card);
             border: 1px solid var(--border-color);
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
         }
 
-        .input-group {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-            width: 100%;
-        }
-
-        .input-group label {
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: var(--text-muted);
-        }
-
-        .input-group input {
-            flex: 1;
-            min-width: 280px;
-            padding: 8px 12px;
-            background-color: var(--bg-input);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
+        .coop-card h2 {
+            font-size: 1.2rem;
             color: var(--text-main);
-            font-size: 0.9rem;
-            outline: none;
-        }
-
-        .input-group input:focus {
-            border-color: var(--accent-gold);
-        }
-
-        .save-btn {
-            background-color: var(--accent-gold);
-            border: none;
-            color: #000;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-        .save-btn:hover {
-            background-color: var(--accent-gold-hover);
-        }
-
-        .api-help {
-            font-size: 0.82rem;
-            color: var(--text-muted);
-        }
-
-        .api-help a {
-            color: var(--accent-gold);
-            text-decoration: underline;
+            margin-bottom: 20px;
         }
 
         .coop-buttons {
             display: flex;
+            flex-direction: column;
             gap: 12px;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
         }
 
         .coop-btn {
-            background-color: var(--bg-card);
+            background-color: #1C2436;
             border: 1px solid var(--border-color);
             color: var(--text-main);
-            padding: 12px 20px;
+            padding: 14px 20px;
             border-radius: 10px;
-            font-size: 1rem;
+            font-size: 1.05rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
+            gap: 10px;
+            text-decoration: none;
         }
 
         .coop-btn:hover {
             border-color: var(--accent-gold);
             background-color: rgba(245, 158, 11, 0.08);
+            color: var(--accent-gold);
             transform: translateY(-2px);
-        }
-
-        .coop-btn.active {
-            background-color: var(--accent-gold);
-            color: #000;
-            border-color: var(--accent-gold);
-        }
-
-        .loading {
-            color: var(--accent-gold);
-            font-weight: 600;
-            margin-bottom: 16px;
-            display: none;
-        }
-
-        .error-box {
-            background-color: rgba(239, 68, 68, 0.1);
-            border: 1px solid #EF4444;
-            color: #EF4444;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            display: none;
-        }
-
-        .results-section {
-            display: none;
-            margin-top: 24px;
-        }
-
-        .results-section h2 {
-            font-size: 1.2rem;
-            margin-bottom: 16px;
-            color: var(--accent-gold);
-        }
-
-        .profiles-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .profile-card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 16px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .profile-card:hover {
-            border-color: var(--accent-gold);
-            transform: translateY(-2px);
-        }
-
-        .profile-card.selected {
-            border-color: var(--accent-gold);
-            background-color: var(--profile-active);
-        }
-
-        .profile-name {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: #FFFFFF;
-            margin-bottom: 4px;
-            text-transform: capitalize;
-        }
-
-        .profile-mode {
-            display: inline-block;
-            background-color: rgba(56, 189, 248, 0.1);
-            color: #38BDF8;
-            padding: 2px 8px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .profile-dashboard {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-        }
-
-        .stat-card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 16px;
-        }
-
-        .stat-card .label {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-bottom: 6px;
-        }
-
-        .stat-card .value {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #FFFFFF;
-        }
-
-        .stat-card .sub-value {
-            font-size: 0.8rem;
-            color: var(--accent-gold);
-            margin-top: 4px;
-        }
-
-        .tabs-nav {
-            display: flex;
-            gap: 8px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 12px;
-            flex-wrap: wrap;
-        }
-
-        .tab-btn {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            color: var(--text-muted);
-            padding: 10px 18px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .tab-btn:hover {
-            color: var(--text-main);
-            border-color: var(--text-main);
-        }
-
-        .tab-btn.active {
-            background-color: var(--accent-gold);
-            color: #000;
-            border-color: var(--accent-gold);
-        }
-
-        .tab-content {
-            display: none;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .tab-content.active {
-            display: flex;
-        }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-            gap: 20px;
-        }
-
-        .section-box {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
-        }
-
-        .section-box h3 {
-            font-size: 1.1rem;
-            color: #FFFFFF;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 8px;
-        }
-
-        .skill-item, .slayer-item {
-            margin-bottom: 12px;
-        }
-
-        .skill-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.9rem;
-            margin-bottom: 4px;
-        }
-
-        .skill-name {
-            font-weight: 600;
-            color: var(--text-main);
-        }
-
-        .skill-lvl {
-            font-weight: 700;
-            color: var(--accent-gold);
-        }
-
-        .progress-bar-bg {
-            background-color: var(--bg-input);
-            height: 8px;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .progress-bar-fill {
-            background-color: var(--accent-gold);
-            height: 100%;
-            border-radius: 4px;
-            width: 0%;
-        }
-
-        .item-slot {
-            background-color: var(--bg-input);
-            border: 1px solid var(--border-color);
-            padding: 10px 14px;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .item-slot span {
-            color: var(--accent-gold);
-            font-weight: 600;
-        }
-
-        .tier-kills-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 6px;
-            margin-top: 6px;
-            font-size: 0.75rem;
-            text-align: center;
-        }
-
-        .tier-box {
-            background-color: var(--bg-input);
-            padding: 4px;
-            border-radius: 4px;
-            color: var(--text-muted);
-        }
-
-        .tier-box span {
-            display: block;
-            color: #FFFFFF;
-            font-weight: bold;
-        }
-
-        .raw-toggle-btn {
-            background: none;
-            border: 1px solid var(--border-color);
-            color: var(--text-muted);
-            padding: 8px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            margin-top: 10px;
-        }
-
-        .raw-toggle-btn:hover {
-            color: var(--text-main);
-            border-color: var(--text-main);
-        }
-
-        pre {
-            background-color: var(--bg-dark);
-            border: 1px solid var(--border-color);
-            padding: 16px;
-            border-radius: 8px;
-            overflow-x: auto;
-            color: #38BDF8;
-            font-family: monospace;
-            font-size: 0.85rem;
-            max-height: 400px;
-            margin-top: 12px;
         }
     </style>
 </head>
@@ -434,453 +106,40 @@
     <div class="container">
         <header>
             <h1>Hypixel SkyBlock <span>Coop Profiler</span></h1>
-            <p>Advanced profile tracker for your coop members.</p>
+            <p>Kliknutím na hráče otevřete jeho SkyCrypt profil v nové záložce.</p>
         </header>
 
-        <!-- API Key Settings Card -->
-        <div class="settings-card">
-            <div class="input-group">
-                <label for="apiKeyInput">Hypixel API Key:</label>
-                <input type="password" id="apiKeyInput" placeholder="Enter your personal API key...">
-                <button class="save-btn" onclick="saveApiKey()">Save Key</button>
-            </div>
-            <div class="api-help">
-                Get your free API key at the <a href="https://developer.hypixel.net/dashboard/" target="_blank" rel="noopener noreferrer">Hypixel Developer Dashboard</a>.
-            </div>
-        </div>
-
-        <!-- Coop Members Buttons -->
-        <div class="coop-buttons" id="coopButtonsContainer"></div>
-
-        <div id="loadingMsg" class="loading">Loading data from Hypixel API...</div>
-        <div id="errorMsg" class="error-box"></div>
-
-        <!-- SkyCrypt Embedded Viewer Section -->
-        <div id="skycryptContainer" style="display: none; margin-bottom: 24px;">
-            <h3 style="margin-bottom: 12px; color: var(--accent-gold);">🌐 SkyCrypt Live View</h3>
-            <iframe id="skycryptFrame" src="" style="width: 100%; height: 800px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-card);"></iframe>
-        </div>
-
-        <!-- Profiles & Dashboard Container -->
-        <div class="results-section" id="resultsContainer">
-            <h2 id="resultTitle">Profiles found:</h2>
-            <div class="profiles-grid" id="profilesGridContainer"></div>
-
-            <div class="profile-dashboard" id="profileDashboardContainer" style="display: none;">
-                <!-- High Level Stats -->
-                <div class="stats-row">
-                    <div class="stat-card">
-                        <div class="label">Purse Balance</div>
-                        <div class="value" id="purseVal">0</div>
-                        <div class="sub-value">Coins</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="label">Coop Bank Balance</div>
-                        <div class="value" id="bankVal">0</div>
-                        <div class="sub-value">Shared Account</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="label">Magical Power</div>
-                        <div class="value" id="magicalPowerVal">0</div>
-                        <div class="sub-value">Highest Magical Power</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="label">Skill Average</div>
-                        <div class="value" id="skillAvgVal">0.0</div>
-                        <div class="sub-value">Non-cosmetic</div>
-                    </div>
-                </div>
-
-                <!-- Navigation Tabs -->
-                <div class="tabs-nav">
-                    <button class="tab-btn active" onclick="switchTab('skillsTab', this)">📊 Skills & Dungeons</button>
-                    <button class="tab-btn" onclick="switchTab('slayersTab', this)">⚔️ Slayers</button>
-                    <button class="tab-btn" onclick="switchTab('miningTab', this)">⛏️ HotM & Mining</button>
-                    <button class="tab-btn" onclick="switchTab('inventoryTab', this)">🎒 Inventory & Gear</button>
-                    <button class="tab-btn" onclick="switchTab('minionsTab', this)">🤖 Minions</button>
-                </div>
-
-                <!-- TAB 1: Skills & Dungeons -->
-                <div class="tab-content active" id="skillsTab">
-                    <div class="dashboard-grid">
-                        <div class="section-box">
-                            <h3>📊 Skills Breakdown</h3>
-                            <div id="skillsContainer"></div>
-                        </div>
-                        <div class="section-box">
-                            <h3>🏰 Dungeons & Catacombs</h3>
-                            <div id="dungeonContainer"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TAB 2: Slayers -->
-                <div class="tab-content" id="slayersTab">
-                    <div class="section-box">
-                        <h3>⚔️ Slayer Bosses & Tier Kills</h3>
-                        <div id="slayerContainer"></div>
-                    </div>
-                </div>
-
-                <!-- TAB 3: HotM & Mining -->
-                <div class="tab-content" id="miningTab">
-                    <div class="dashboard-grid">
-                        <div class="section-box">
-                            <h3>⛏️ Heart of the Mountain</h3>
-                            <div id="hotmContainer"></div>
-                        </div>
-                        <div class="section-box">
-                            <h3>💎 Powders & Mining Stats</h3>
-                            <div id="miningStatsContainer"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TAB 4: Inventory, Accessories & Gear -->
-                <div class="tab-content" id="inventoryTab">
-                    <div class="dashboard-grid">
-                        <div class="section-box">
-                            <h3>🛡️ Equipment & Armor</h3>
-                            <div id="equipmentContainer"></div>
-                        </div>
-                        <div class="section-box">
-                            <h3>💍 Sacks & Storage</h3>
-                            <div id="accessoriesContainer"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TAB 5: Minions -->
-                <div class="tab-content" id="minionsTab">
-                    <div class="section-box">
-                        <h3>🤖 Minions (Crafted Generators)</h3>
-                        <div id="minionsContainer"></div>
-                    </div>
-                </div>
-
-                <!-- Raw JSON Toggle -->
-                <div>
-                    <button class="raw-toggle-btn" onclick="toggleRawJson()">Show / Hide Raw JSON Payload</button>
-                    <pre id="rawJsonOutput" style="display: none;"></pre>
-                </div>
-            </div>
+        <div class="coop-card">
+            <h2>Vyberte člena Coop týmu</h2>
+            <!-- Coop Members Buttons Container -->
+            <div class="coop-buttons" id="coopButtonsContainer"></div>
         </div>
     </div>
 
     <script>
+        // Seznam vašich hráčů (jména se použijí pro sestavení SkyCrypt URL)
         const coopMembers = [
-            { name: "PonozkaBrix", uuid: "ba6444571f844183a13ff51ad41bc848" },
-            { name: "HejtyCZE", uuid: "47b0769cd2ef4e4d88637e839b5d1c54" },
-            { name: "Goromc", uuid: "444f89c6cfa94743a67136c8e727bd88" },
-            { name: "_Val3rie_", uuid: "7ae8f1c37ab24777a1a6cbbeb35c23b3" },
-            { name: "EndyWilliams", uuid: "703cb88ef6784fa3a28e6b2771748daa" }
+            { name: "PonozkaBrix" },
+            { name: "HejtyCZE" },
+            { name: "Goromc" },
+            { name: "_Val3rie_" },
+            { name: "EndyWilliams" }
         ];
 
-        const skillXPLevels = [0, 50, 175, 375, 675, 1175, 1925, 2925, 4425, 6425, 9925, 14925, 22425, 32425, 47425, 67425, 97425, 147425, 222425, 322425, 522425, 822425, 1222425, 1722425, 2322425, 3022425, 3822425, 4722425, 5722425, 6822425, 8022425, 9322425, 10722425, 12222425, 13822425, 15522425, 17322425, 19222425, 21222425, 23322425, 25522425, 27822425, 30222425, 32722425, 35322425, 38072425, 40972425, 44022425, 47222425, 50572425, 54072425, 57722425, 61522425, 65472425, 69572425, 73822425, 78222425, 82772425, 87472425, 92322425, 97322425, 102472425, 107772425, 113222425, 118822425, 124572425];
-
         window.addEventListener('DOMContentLoaded', () => {
-            const savedKey = localStorage.getItem('hypixel_api_key');
-            if (savedKey) document.getElementById('apiKeyInput').value = savedKey;
-
             const container = document.getElementById('coopButtonsContainer');
+            
             coopMembers.forEach((member) => {
-                const btn = document.createElement('button');
-                btn.className = 'coop-btn';
-                btn.innerHTML = `👤 ${member.name}`;
-                btn.onclick = () => fetchPlayerData(member.uuid, member.name, btn);
-                container.appendChild(btn);
+                const link = document.createElement('a');
+                link.className = 'coop-btn';
+                link.href = `https://sky.shiiyu.moe/stats/${member.name}`;
+                link.target = '_blank'; // Otevře v nové kartě
+                link.rel = 'noopener noreferrer';
+                link.innerHTML = `👤 ${member.name} <span style="font-size: 0.8rem; opacity: 0.7; margin-left: auto;">↗ SkyCrypt</span>`;
+                
+                container.appendChild(link);
             });
         });
-
-        function saveApiKey() {
-            const key = document.getElementById('apiKeyInput').value.trim();
-            if (key) {
-                localStorage.setItem('hypixel_api_key', key);
-                alert("API key successfully saved!");
-            } else {
-                localStorage.removeItem('hypixel_api_key');
-                alert("API key removed.");
-            }
-        }
-
-        async function fetchPlayerData(uuid, playerName, clickedButton) {
-            const loadingMsg = document.getElementById('loadingMsg');
-            const errorMsg = document.getElementById('errorMsg');
-            const resultsContainer = document.getElementById('resultsContainer');
-            const profilesGridContainer = document.getElementById('profilesGridContainer');
-            const profileDashboardContainer = document.getElementById('profileDashboardContainer');
-            
-            // SkyCrypt iframe elementy
-            const skycryptContainer = document.getElementById('skycryptContainer');
-            const skycryptFrame = document.getElementById('skycryptFrame');
-
-            errorMsg.style.display = 'none';
-            resultsContainer.style.display = 'none';
-            profileDashboardContainer.style.display = 'none';
-            profilesGridContainer.innerHTML = '';
-
-            // Okamžité načtení SkyCryptu do iframe při kliknutí na hráče
-            if (skycryptFrame && skycryptContainer) {
-                skycryptFrame.src = `https://sky.shiiyu.moe/stats/${playerName}`;
-                skycryptContainer.style.display = 'block';
-            }
-
-            const apiKey = localStorage.getItem('hypixel_api_key');
-            if (!apiKey) {
-                showError("Please enter and save your Hypixel API Key to load local profile details!");
-                document.querySelectorAll('.coop-btn').forEach(b => b.classList.remove('active'));
-                clickedButton.classList.add('active');
-                return;
-            }
-
-            document.querySelectorAll('.coop-btn').forEach(b => b.classList.remove('active'));
-            loadingMsg.style.display = 'block';
-
-            try {
-                const hypixelRes = await fetch(`https://api.hypixel.net/v2/skyblock/profiles?uuid=${uuid}`, {
-                    headers: { 'API-Key': apiKey }
-                });
-                
-                if (!hypixelRes.ok) throw new Error(`API error ${hypixelRes.status}: ${hypixelRes.statusText}`);
-
-                const hypixelData = await hypixelRes.json();
-                if (!hypixelData.success || !hypixelData.profiles || hypixelData.profiles.length === 0) {
-                    throw new Error(`No SkyBlock profiles found for player ${playerName}.`);
-                }
-
-                document.getElementById('resultTitle').textContent = `Profiles for ${playerName}:`;
-                
-                hypixelData.profiles.forEach((profile, index) => {
-                    const profileName = profile.cute_name || `Profile ${index + 1}`;
-                    const gameMode = profile.game_mode || 'normal';
-
-                    const card = document.createElement('div');
-                    card.className = 'profile-card';
-                    card.innerHTML = `
-                        <div class="profile-name">🌿 ${profileName}</div>
-                        <span class="profile-mode">${gameMode}</span>
-                    `;
-
-                    card.onclick = () => {
-                        document.querySelectorAll('.profile-card').forEach(c => c.classList.remove('selected'));
-                        card.classList.add('selected');
-                        renderProfileDashboard(profile, uuid);
-                    };
-
-                    profilesGridContainer.appendChild(card);
-                });
-
-                resultsContainer.style.display = 'block';
-                clickedButton.classList.add('active');
-
-                const firstCard = profilesGridContainer.querySelector('.profile-card');
-                if (firstCard) firstCard.click();
-
-            } catch (err) {
-                showError(err.message);
-            } finally {
-                loadingMsg.style.display = 'none';
-            }
-        }
-
-        function renderProfileDashboard(profileData, playerUuid) {
-            const dashboard = document.getElementById('profileDashboardContainer');
-            const memberData = profileData.members[playerUuid] || {};
-
-            // 1. Currencies & Banks & Magical Power
-            const purse = memberData.currencies?.coin_purse || memberData.coin_purse || 0;
-            const bank = profileData.banking?.balance || 0;
-            const magicalPower = memberData.highest_magical_power || memberData.player_data?.highest_magical_power || memberData.inventory?.accessory_bag_storage?.highest_magical_power || 0;
-
-            document.getElementById('purseVal').textContent = formatNumber(purse);
-            document.getElementById('bankVal').textContent = formatNumber(bank);
-            document.getElementById('magicalPowerVal').textContent = magicalPower;
-
-            // 2. Skills
-            const skillNames = ['farming', 'mining', 'combat', 'foraging', 'fishing', 'enchanting', 'alchemy', 'taming'];
-            const playerSkills = memberData.player_data?.experience || memberData.player_data || {};
-            let totalLevel = 0, skillCount = 0, skillsHtml = '';
-
-            skillNames.forEach(skill => {
-                const rawXp = playerSkills[`SKILL_${skill.toUpperCase()}`] || playerSkills[skill] || 0;
-                const skillInfo = calculateSkillLevel(rawXp);
-                totalLevel += skillInfo.level;
-                skillCount++;
-
-                skillsHtml += `
-                    <div class="skill-item">
-                        <div class="skill-header">
-                            <span class="skill-name">${capitalize(skill)}</span>
-                            <span class="skill-lvl">Lvl ${skillInfo.level}</span>
-                        </div>
-                        <div class="progress-bar-bg">
-                            <div class="progress-bar-fill" style="width: ${skillInfo.percent}%"></div>
-                        </div>
-                    </div>
-                `;
-            });
-            document.getElementById('skillAvgVal').textContent = (skillCount > 0 ? (totalLevel / skillCount).toFixed(1) : "0.0");
-            document.getElementById('skillsContainer').innerHTML = skillsHtml;
-
-            // 3. Dungeons
-            const dungeonData = memberData.dungeons?.dungeon_types?.catacombs;
-            const cataXp = dungeonData?.experience || 0;
-            const cataLvl = calculateSkillLevel(cataXp).level;
-            const selectedClass = memberData.dungeons?.selected_dungeon_class || 'None';
-
-            document.getElementById('dungeonContainer').innerHTML = `
-                <div style="font-size: 0.95rem; line-height: 1.6;">
-                    <strong>Catacombs Level:</strong> Lvl ${cataLvl} (${formatNumber(cataXp)} XP)<br>
-                    <strong>Selected Class:</strong> ${capitalize(selectedClass)}<br>
-                    <strong>Secrets Found:</strong> ${formatNumber(memberData.dungeons?.secrets_found || 0)}
-                </div>
-            `;
-
-            // 4. Slayers
-            const slayers = memberData.slayer?.slayer_bosses || {};
-            const slayerTypes = ['zombie', 'spider', 'wolf', 'enderman', 'blaze', 'vampire'];
-            let slayerHtml = '';
-
-            slayerTypes.forEach(type => {
-                const slayerObj = slayers[type] || {};
-                const xp = slayerObj.xp || 0;
-                const level = getSlayerLevel(type, xp);
-
-                slayerHtml += `
-                    <div class="slayer-item" style="background: var(--bg-input); padding: 12px; border-radius: 8px;">
-                        <div class="skill-header">
-                            <span class="skill-name" style="font-size: 1rem; color: var(--accent-gold);">${capitalize(type)}</span>
-                            <span class="skill-lvl">Level ${level} (${formatNumber(xp)} XP)</span>
-                        </div>
-                        <div class="tier-kills-grid">
-                            <div class="tier-box">T1<span>${formatNumber(slayerObj.boss_kills_tier_0 || 0)}</span></div>
-                            <div class="tier-box">T2<span>${formatNumber(slayerObj.boss_kills_tier_1 || 0)}</span></div>
-                            <div class="tier-box">T3<span>${formatNumber(slayerObj.boss_kills_tier_2 || 0)}</span></div>
-                            <div class="tier-box">T4<span>${formatNumber(slayerObj.boss_kills_tier_3 || 0)}</span></div>
-                            <div class="tier-box">T5<span>${formatNumber(slayerObj.boss_kills_tier_4 || 0)}</span></div>
-                        </div>
-                    </div>
-                `;
-            });
-            document.getElementById('slayerContainer').innerHTML = slayerHtml;
-
-            // 5. HotM & Mining
-            const miningCore = memberData.mining_core || {};
-            const skillTree = memberData.mining_core?.nodes || memberData.skill_tree || {};
-            
-            const hotmXp = miningCore.experience || 0;
-            const hotmLevel = Math.min(10, Math.floor(hotmXp / 100000) + 1);
-            const nodesUnlocked = (typeof skillTree === 'object' && skillTree !== null) ? Object.keys(skillTree).length : 0;
-
-            document.getElementById('hotmContainer').innerHTML = `
-                <div style="font-size: 0.95rem; line-height: 1.6;">
-                    <strong>HotM Tier:</strong> Level ${hotmLevel}<br>
-                    <strong>HotM Experience:</strong> ${formatNumber(hotmXp)} XP<br>
-                    <strong>Mithril Powder:</strong> ${formatNumber(miningCore.powder_mithril || miningCore.powder_spent_mithril || 0)}<br>
-                    <strong>Gemstone Powder:</strong> ${formatNumber(miningCore.powder_gemstone || miningCore.powder_spent_gemstone || 0)}<br>
-                    <strong>Glacite Powder:</strong> ${formatNumber(miningCore.powder_glacite || miningCore.powder_spent_glacite || 0)}
-                </div>
-            `;
-            document.getElementById('miningStatsContainer').innerHTML = `
-                <div style="font-size: 0.95rem; line-height: 1.6;">
-                    <strong>Unlocked Tree Nodes:</strong> ${nodesUnlocked} nodes<br>
-                    <strong>Selected Pickaxe Ability:</strong> ${miningCore.selected_pickaxe_ability || 'Active'}
-                </div>
-            `;
-
-            // 6. Equipment & Inventory Sacks
-            const eqData = memberData.inventory?.equipment || memberData.equipment || {};
-            const invArmor = memberData.inventory?.inv_armor || memberData.inv_armor || {};
-
-            let eqHtml = `<div style="font-size: 0.95rem; margin-bottom: 8px;">Equipment & Armor Status:</div>`;
-            eqHtml += `<div class="item-slot">Armor Set Data <span>${invArmor.data ? "NBT Stream Loaded" : "Synchronized"}</span></div>`;
-            eqHtml += `<div class="item-slot">Equipment Slots <span>${eqData.data ? "NBT Stream Loaded" : "Synchronized"}</span></div>`;
-            document.getElementById('equipmentContainer').innerHTML = eqHtml;
-
-            const sacks = memberData.inventory?.sacks_counts || memberData.sacks_counts || {};
-            const sacksCount = Object.keys(sacks).length;
-
-            document.getElementById('accessoriesContainer').innerHTML = `
-                <div style="font-size: 0.95rem; line-height: 1.6;">
-                    <strong>Sacks Tracked Items:</strong> ${sacksCount} resource types<br>
-                    <strong>Accessory Bag Status:</strong> Synchronized with profile
-                </div>
-            `;
-
-            // 7. Minions
-            const craftedGen = memberData.player_data?.crafted_generators || memberData.crafted_generators || [];
-            let totalMinionsCrafted = craftedGen.length;
-
-            let minionsHtml = `
-                <div style="font-size: 0.95rem; line-height: 1.6; margin-bottom: 12px;">
-                    <strong>Total Crafted Unique Tiers:</strong> <span style="color: var(--accent-gold);">${totalMinionsCrafted} tiers</span>
-                </div>
-                <div style="font-size: 0.85rem; color: var(--text-muted); max-height: 180px; overflow-y: auto; background: var(--bg-input); padding: 10px; border-radius: 6px; display: flex; flex-direction: column; gap: 4px;">
-            `;
-
-            if (totalMinionsCrafted > 0) {
-                craftedGen.forEach(gen => {
-                    minionsHtml += `<div>• ${gen}</div>`;
-                });
-            } else {
-                minionsHtml += `<div>No crafted minion records found under player_data.</div>`;
-            }
-            minionsHtml += `</div>`;
-
-            document.getElementById('minionsContainer').innerHTML = minionsHtml;
-
-            document.getElementById('rawJsonOutput').textContent = JSON.stringify(profileData, null, 2);
-            dashboard.style.display = 'flex';
-        }
-
-        function switchTab(tabId, btnElement) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-
-            document.getElementById(tabId).classList.add('active');
-            btnElement.classList.add('active');
-        }
-
-        function calculateSkillLevel(xp) {
-            let level = 0;
-            for (let i = 0; i < skillXPLevels.length; i++) {
-                if (xp >= skillXPLevels[i]) level = i;
-                else break;
-            }
-            const currentLevelXp = skillXPLevels[level] || 0;
-            const nextLevelXp = skillXPLevels[level + 1] || currentLevelXp;
-            const percent = nextLevelXp > currentLevelXp ? Math.min(100, Math.max(0, ((xp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * 100)) : 100;
-            return { level, percent };
-        }
-
-        function getSlayerLevel(type, xp) {
-            const reqs = [10, 25, 200, 1000, 5000, 20000, 100000, 400000, 1000000];
-            let lvl = 0;
-            for (let i = 0; i < reqs.length; i++) {
-                if (xp >= reqs[i]) lvl = i + 1;
-                else break;
-            }
-            return lvl;
-        }
-
-        function formatNumber(num) {
-            return Math.floor(num).toLocaleString('en-US');
-        }
-
-        function capitalize(str) {
-            return str.charAt(0).toUpperCase() + str.slice(1);
-        }
-
-        function toggleRawJson() {
-            const raw = document.getElementById('rawJsonOutput');
-            raw.style.display = (raw.style.display === 'none') ? 'block' : 'none';
-        }
-
-        function showError(message) {
-            const errorMsg = document.getElementById('errorMsg');
-            errorMsg.textContent = message;
-            errorMsg.style.display = 'block';
-        }
     </script>
 </body>
 </html>
