@@ -455,6 +455,12 @@
         <div id="loadingMsg" class="loading">Loading data from Hypixel API...</div>
         <div id="errorMsg" class="error-box"></div>
 
+        <!-- SkyCrypt Embedded Viewer Section -->
+        <div id="skycryptContainer" style="display: none; margin-bottom: 24px;">
+            <h3 style="margin-bottom: 12px; color: var(--accent-gold);">🌐 SkyCrypt Live View</h3>
+            <iframe id="skycryptFrame" src="" style="width: 100%; height: 800px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-card);"></iframe>
+        </div>
+
         <!-- Profiles & Dashboard Container -->
         <div class="results-section" id="resultsContainer">
             <h2 id="resultTitle">Profiles found:</h2>
@@ -603,15 +609,27 @@
             const resultsContainer = document.getElementById('resultsContainer');
             const profilesGridContainer = document.getElementById('profilesGridContainer');
             const profileDashboardContainer = document.getElementById('profileDashboardContainer');
+            
+            // SkyCrypt iframe elementy
+            const skycryptContainer = document.getElementById('skycryptContainer');
+            const skycryptFrame = document.getElementById('skycryptFrame');
 
             errorMsg.style.display = 'none';
             resultsContainer.style.display = 'none';
             profileDashboardContainer.style.display = 'none';
             profilesGridContainer.innerHTML = '';
 
+            // Okamžité načtení SkyCryptu do iframe při kliknutí na hráče
+            if (skycryptFrame && skycryptContainer) {
+                skycryptFrame.src = `https://sky.shiiyu.moe/stats/${playerName}`;
+                skycryptContainer.style.display = 'block';
+            }
+
             const apiKey = localStorage.getItem('hypixel_api_key');
             if (!apiKey) {
-                showError("Please enter and save your Hypixel API Key first!");
+                showError("Please enter and save your Hypixel API Key to load local profile details!");
+                document.querySelectorAll('.coop-btn').forEach(b => b.classList.remove('active'));
+                clickedButton.classList.add('active');
                 return;
             }
 
@@ -746,7 +764,7 @@
             });
             document.getElementById('slayerContainer').innerHTML = slayerHtml;
 
-            // 5. HotM & Mining (Opravené zanoření)
+            // 5. HotM & Mining
             const miningCore = memberData.mining_core || {};
             const skillTree = memberData.mining_core?.nodes || memberData.skill_tree || {};
             
@@ -789,7 +807,7 @@
                 </div>
             `;
 
-            // 7. Minions (Opraveno: player_data.crafted_generators)
+            // 7. Minions
             const craftedGen = memberData.player_data?.crafted_generators || memberData.crafted_generators || [];
             let totalMinionsCrafted = craftedGen.length;
 
