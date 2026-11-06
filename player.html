@@ -15,6 +15,9 @@
             --accent-gold: #F59E0B;
             --accent-gold-hover: #D97706;
             --profile-active: #1E293B;
+            --accent-green: #10B981;
+            --accent-blue: #38BDF8;
+            --accent-purple: #A855F7;
         }
 
         * {
@@ -167,7 +170,6 @@
             display: none;
         }
 
-        /* Sekce pro dlaždice profilů */
         .results-section {
             display: none;
             margin-top: 24px;
@@ -181,7 +183,7 @@
 
         .profiles-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
             gap: 16px;
             margin-bottom: 24px;
         }
@@ -190,10 +192,9 @@
             background-color: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            padding: 20px;
+            padding: 16px;
             cursor: pointer;
             transition: all 0.2s;
-            position: relative;
         }
 
         .profile-card:hover {
@@ -210,40 +211,133 @@
             font-size: 1.1rem;
             font-weight: bold;
             color: #FFFFFF;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             text-transform: capitalize;
-        }
-
-        .profile-id {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-bottom: 12px;
-            font-family: monospace;
         }
 
         .profile-mode {
             display: inline-block;
             background-color: rgba(56, 189, 248, 0.1);
             color: #38BDF8;
-            padding: 4px 8px;
+            padding: 2px 8px;
             border-radius: 6px;
             font-size: 0.75rem;
             font-weight: 600;
             text-transform: uppercase;
         }
 
-        /* Detail vybraného profilu (JSON) */
-        .profile-detail {
+        /* Structured Dashboard Layout */
+        .profile-dashboard {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .stat-card {
             background-color: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            padding: 24px;
+            padding: 16px;
         }
 
-        .profile-detail h3 {
-            font-size: 1rem;
+        .stat-card .label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .stat-card .value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+
+        .stat-card .sub-value {
+            font-size: 0.8rem;
+            color: var(--accent-gold);
+            margin-top: 4px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 20px;
+        }
+
+        .section-box {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .section-box h3 {
+            font-size: 1.1rem;
+            color: #FFFFFF;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .skill-item, .slayer-item {
             margin-bottom: 12px;
+        }
+
+        .skill-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+
+        .skill-name {
+            font-weight: 600;
             color: var(--text-main);
+        }
+
+        .skill-lvl {
+            font-weight: 700;
+            color: var(--accent-gold);
+        }
+
+        .progress-bar-bg {
+            background-color: var(--bg-input);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            background-color: var(--accent-gold);
+            height: 100%;
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .raw-toggle-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+
+        .raw-toggle-btn:hover {
+            color: var(--text-main);
+            border-color: var(--text-muted);
         }
 
         pre {
@@ -254,8 +348,9 @@
             overflow-x: auto;
             color: #38BDF8;
             font-family: monospace;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             max-height: 400px;
+            margin-top: 12px;
         }
     </style>
 </head>
@@ -284,20 +379,67 @@
         <div id="loadingMsg" class="loading">Loading data from Hypixel API...</div>
         <div id="errorMsg" class="error-box"></div>
 
-        <!-- Profiles Grid & Detail Section -->
+        <!-- Profiles Grid & Parsed Visual Dashboard -->
         <div class="results-section" id="resultsContainer">
             <h2 id="resultTitle">Profiles found:</h2>
             <div class="profiles-grid" id="profilesGridContainer"></div>
 
-            <div class="profile-detail" id="profileDetailContainer" style="display: none;">
-                <h3 id="detailTitle">Raw Data for Selected Profile:</h3>
-                <pre id="rawJsonOutput"></pre>
+            <div class="profile-dashboard" id="profileDashboardContainer" style="display: none;">
+                <!-- High Level Stats -->
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="label">Purse Balance</div>
+                        <div class="value" id="purseVal">0</div>
+                        <div class="sub-value">Coins</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Bank Balance</div>
+                        <div class="value" id="bankVal">0</div>
+                        <div class="sub-value">Coop Bank</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Skill Average</div>
+                        <div class="value" id="skillAvgVal">0.0</div>
+                        <div class="sub-value">Non-cosmetic</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Catacombs Level</div>
+                        <div class="value" id="cataVal">0</div>
+                        <div class="sub-value" id="cataClass">Class: N/A</div>
+                    </div>
+                </div>
+
+                <!-- Detailed Breakdown Grid -->
+                <div class="dashboard-grid">
+                    <!-- Skills Section -->
+                    <div class="section-box">
+                        <h3>📊 Skills</h3>
+                        <div id="skillsContainer"></div>
+                    </div>
+
+                    <!-- Slayer Section -->
+                    <div class="section-box">
+                        <h3>⚔️ Slayers</h3>
+                        <div id="slayerContainer"></div>
+                    </div>
+
+                    <!-- Dungeons & Info Section -->
+                    <div class="section-box">
+                        <h3>🏰 Dungeons & Profile Info</h3>
+                        <div id="dungeonContainer"></div>
+                    </div>
+                </div>
+
+                <!-- Toggleable Raw JSON Container -->
+                <div>
+                    <button class="raw-toggle-btn" onclick="toggleRawJson()">Show / Hide Raw JSON Payload</button>
+                    <pre id="rawJsonOutput" style="display: none;"></pre>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Define your 4 coop members (Name + UUID without dashes)
         const coopMembers = [
             { name: "PonozkaBrix", uuid: "ba6444571f844183a13ff51ad41bc848" },
             { name: "HejtyCZE", uuid: "47b0769cd2ef4e4d88637e839b5d1c54" },
@@ -305,6 +447,11 @@
             { name: "_Val3rie_", uuid: "7ae8f1c37ab24777a1a6cbbeb35c23b3" },
             { name: "EndyWilliams", uuid: "703cb88ef6784fa3a28e6b2771748daa" }
         ];
+
+        // Standard XP curves for skill levels
+        const skillXPLevels = [0, 50, 175, 375, 675, 1175, 1925, 2925, 4425, 6425, 9925, 14925, 22425, 32425, 47425, 67425, 97425, 147425, 222425, 322425, 522425, 822425, 1222425, 1722425, 2322425, 3022425, 3822425, 4722425, 5722425, 6822425, 8022425, 9322425, 10722425, 12222425, 13822425, 15522425, 17322425, 19222425, 21222425, 23322425, 25522425, 27822425, 30222425, 32722425, 35322425, 38072425, 40972425, 44022425, 47222425, 50572425, 54072425, 57722425, 61522425, 65472425, 69572425, 73822425, 78222425, 82772425, 87472425, 92322425, 97322425, 102472425, 107772425, 113222425, 118822425, 124572425];
+
+        let currentActiveUuid = null;
 
         window.addEventListener('DOMContentLoaded', () => {
             const savedKey = localStorage.getItem('hypixel_api_key');
@@ -334,15 +481,16 @@
         }
 
         async function fetchPlayerData(uuid, playerName, clickedButton) {
+            currentActiveUuid = uuid;
             const loadingMsg = document.getElementById('loadingMsg');
             const errorMsg = document.getElementById('errorMsg');
             const resultsContainer = document.getElementById('resultsContainer');
             const profilesGridContainer = document.getElementById('profilesGridContainer');
-            const profileDetailContainer = document.getElementById('profileDetailContainer');
+            const profileDashboardContainer = document.getElementById('profileDashboardContainer');
 
             errorMsg.style.display = 'none';
             resultsContainer.style.display = 'none';
-            profileDetailContainer.style.display = 'none';
+            profileDashboardContainer.style.display = 'none';
             profilesGridContainer.innerHTML = '';
 
             const apiKey = localStorage.getItem('hypixel_api_key');
@@ -357,9 +505,7 @@
 
             try {
                 const hypixelRes = await fetch(`https://api.hypixel.net/v2/skyblock/profiles?uuid=${uuid}`, {
-                    headers: {
-                        'API-Key': apiKey
-                    }
+                    headers: { 'API-Key': apiKey }
                 });
                 
                 if (!hypixelRes.ok) {
@@ -372,30 +518,23 @@
                     throw new Error(`No SkyBlock profiles found for player ${playerName} (or API is disabled in game settings).`);
                 }
 
-                // Render profile tiles
                 document.getElementById('resultTitle').textContent = `Profiles for ${playerName}:`;
                 
                 hypixelData.profiles.forEach((profile, index) => {
                     const profileName = profile.cute_name || `Profile ${index + 1}`;
                     const gameMode = profile.game_mode || 'normal';
-                    const profileId = profile.profile_id;
 
                     const card = document.createElement('div');
                     card.className = 'profile-card';
                     card.innerHTML = `
                         <div class="profile-name">🌿 ${profileName}</div>
-                        <div class="profile-id">ID: ${profileId.substring(0, 8)}...</div>
                         <span class="profile-mode">${gameMode}</span>
                     `;
 
-                    // Click on tile shows raw data for this specific profile
                     card.onclick = () => {
                         document.querySelectorAll('.profile-card').forEach(c => c.classList.remove('selected'));
                         card.classList.add('selected');
-                        
-                        document.getElementById('detailTitle').textContent = `Raw Data for Profile: ${profileName}`;
-                        document.getElementById('rawJsonOutput').textContent = JSON.stringify(profile, null, 2);
-                        profileDetailContainer.style.display = 'block';
+                        renderProfileDashboard(profile, uuid);
                     };
 
                     profilesGridContainer.appendChild(card);
@@ -404,11 +543,140 @@
                 resultsContainer.style.display = 'block';
                 clickedButton.classList.add('active');
 
+                // Auto-select first profile
+                const firstCard = profilesGridContainer.querySelector('.profile-card');
+                if (firstCard) firstCard.click();
+
             } catch (err) {
                 showError(err.message);
             } finally {
                 loadingMsg.style.display = 'none';
             }
+        }
+
+        function renderProfileDashboard(profileData, playerUuid) {
+            const dashboard = document.getElementById('profileDashboardContainer');
+            const memberData = profileData.members[playerUuid] || {};
+
+            // 1. Purse & Bank Balance
+            const purse = memberData.currencies?.coin_purse || memberData.coin_purse || 0;
+            const bank = profileData.banking?.balance || 0;
+
+            document.getElementById('purseVal').textContent = formatNumber(purse);
+            document.getElementById('bankVal').textContent = formatNumber(bank);
+
+            // 2. Skills Processing
+            const skillNames = ['farming', 'mining', 'combat', 'foraging', 'fishing', 'enchanting', 'alchemy', 'taming'];
+            const playerSkills = memberData.player_data?.experience || {};
+            
+            let totalLevel = 0;
+            let skillCount = 0;
+            let skillsHtml = '';
+
+            skillNames.forEach(skill => {
+                const rawXp = playerSkills[`SKILL_${skill.toUpperCase()}`] || 0;
+                const skillInfo = calculateSkillLevel(rawXp);
+                totalLevel += skillInfo.level;
+                skillCount++;
+
+                skillsHtml += `
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <span class="skill-name">${capitalize(skill)}</span>
+                            <span class="skill-lvl">Lvl ${skillInfo.level}</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" style="width: ${skillInfo.percent}%"></div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('skillAvgVal').textContent = (skillCount > 0 ? (totalLevel / skillCount).toFixed(1) : "0.0");
+            document.getElementById('skillsContainer').innerHTML = skillsHtml;
+
+            // 3. Slayers
+            const slayers = memberData.slayer?.slayer_bosses || {};
+            const slayerTypes = ['zombie', 'spider', 'wolf', 'enderman', 'blaze'];
+            let slayerHtml = '';
+
+            slayerTypes.forEach(type => {
+                const xp = slayers[type]?.xp || 0;
+                const level = getSlayerLevel(type, xp);
+                slayerHtml += `
+                    <div class="slayer-item">
+                        <div class="skill-header">
+                            <span class="skill-name">${capitalize(type)}</span>
+                            <span class="skill-lvl">Lvl ${level} (${formatNumber(xp)} XP)</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('slayerContainer').innerHTML = slayerHtml;
+
+            // 4. Dungeons
+            const dungeonData = memberData.dungeons?.dungeon_types?.catacombs;
+            const cataXp = dungeonData?.experience || 0;
+            const cataLvl = calculateSkillLevel(cataXp).level;
+            const selectedClass = memberData.dungeons?.selected_dungeon_class || 'None';
+
+            document.getElementById('cataVal').textContent = cataLvl;
+            document.getElementById('cataClass').textContent = `Selected: ${capitalize(selectedClass)}`;
+
+            let dungeonHtml = `
+                <div style="margin-bottom: 12px; font-size: 0.9rem;">
+                    <strong>Catacombs XP:</strong> ${formatNumber(cataXp)}<br>
+                    <strong>Selected Class:</strong> ${capitalize(selectedClass)}
+                </div>
+                <div style="font-size: 0.9rem; color: var(--text-muted);">
+                    <strong>Coop Members:</strong> ${Object.keys(profileData.members).length} players
+                </div>
+            `;
+            document.getElementById('dungeonContainer').innerHTML = dungeonHtml;
+
+            // Raw JSON fallback
+            document.getElementById('rawJsonOutput').textContent = JSON.stringify(profileData, null, 2);
+            dashboard.style.display = 'flex';
+        }
+
+        // Helper calculations
+        function calculateSkillLevel(xp) {
+            let level = 0;
+            for (let i = 0; i < skillXPLevels.length; i++) {
+                if (xp >= skillXPLevels[i]) {
+                    level = i;
+                } else {
+                    break;
+                }
+            }
+            const currentLevelXp = skillXPLevels[level] || 0;
+            const nextLevelXp = skillXPLevels[level + 1] || currentLevelXp;
+            const percent = nextLevelXp > currentLevelXp ? Math.min(100, Math.max(0, ((xp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * 100)) : 100;
+            return { level, percent };
+        }
+
+        function getSlayerLevel(type, xp) {
+            const reqs = [10, 25, 200, 1000, 5000, 20000, 100000, 400000, 1000000];
+            let lvl = 0;
+            for (let i = 0; i < reqs.length; i++) {
+                if (xp >= reqs[i]) lvl = i + 1;
+                else break;
+            }
+            return lvl;
+        }
+
+        function formatNumber(num) {
+            return Math.floor(num).toLocaleString('en-US');
+        }
+
+        function capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        function toggleRawJson() {
+            const raw = document.getElementById('rawJsonOutput');
+            raw.style.display = (raw.style.display === 'none') ? 'block' : 'none';
         }
 
         function showError(message) {
