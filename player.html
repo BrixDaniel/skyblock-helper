@@ -162,63 +162,65 @@
         const HYPIXEL_API_KEY = '5f23c46c-4f26-4602-8857-7d261c885074';
 
         async function fetchPlayerData() {
-            const username = document.getElementById('mcUsername').value.trim();
-            const loadingMsg = document.getElementById('loadingMsg');
-            const errorMsg = document.getElementById('errorMsg');
-            const resultsContainer = document.getElementById('resultsContainer');
-            const rawJsonOutput = document.getElementById('rawJsonOutput');
+    const username = document.getElementById('mcUsername').value.trim();
+    const loadingMsg = document.getElementById('loadingMsg');
+    const errorMsg = document.getElementById('errorMsg');
+    const resultsContainer = document.getElementById('resultsContainer');
+    const rawJsonOutput = document.getElementById('rawJsonOutput');
 
-            // Reset UI
-            errorMsg.style.display = 'none';
-            resultsContainer.style.display = 'none';
+    errorMsg.style.display = 'none';
+    resultsContainer.style.display = 'none';
 
-            if (!username) {
-                showError("Prosím zadej platné Minecraft jméno.");
-                return;
-            }
+    if (!username) {
+        showError("Prosím zadej platné Minecraft jméno.");
+        return;
+    }
 
-            if (HYPIXEL_API_KEY !== '5f23c46c-4f26-4602-8857-7d261c885074') {
-                showError("Nezapomeň v kódu nastavit svůj vlastní HYPIXEL_API_KEY!");
-                return;
-            }
+    if (HYPIXEL_API_KEY === 'TVUJ_HYPIXEL_API_KLIC') {
+        showError("Nezapomeň v kódu nastavit svůj vlastní HYPIXEL_API_KEY!");
+        return;
+    }
 
-            loadingMsg.style.display = 'block';
+    loadingMsg.style.display = 'block';
 
-            try {
-                // 1. Krok: Převod jména na UUID přes Mojang API
-                // Poznámka: Pro obcházení CORS v prohlížeči se někdy používá CORS proxy, nebo přímé volání, pokud to prohlížeč dovolí.
-                const mojangRes = await fetch(`https://api.mojang.com/users/profiles/minecraft/${encodeURIComponent(username)}`);
-                
-                if (!mojangRes.ok) {
-                    throw new Error("Hráč s tímto jménem nebyl v Minecraftu nalezen.");
-                }
-
-                const mojangData = await mojangRes.json();
-                const uuid = mojangData.id; // UUID bez pomlček
-
-                // 2. Krok: Volání Hypixel SkyBlock Profiles API
-                const hypixelRes = await fetch(`https://api.hypixel.net/skyblock/profiles?key=${HYPIXEL_API_KEY}&uuid=${uuid}`);
-                
-                if (!hypixelRes.ok) {
-                    throw new Error("Nepodařilo se načíst data z Hypixel API (zkontroluj platnost API klíče).");
-                }
-
-                const hypixelData = await hypixelRes.json();
-
-                if (!hypixelData.success || !hypixelData.profiles || hypixelData.profiles.length === 0) {
-                    throw new Error("Pro tohoto hráče nebývaly nalezeny žádné SkyBlock profily (nebo má zapnuté API v nastavení hry).");
-                }
-
-                // Zobrazení výsledků
-                rawJsonOutput.textContent = JSON.stringify(hypixelData, null, 2);
-                resultsContainer.style.display = 'block';
-
-            } catch (err) {
-                showError(err.message);
-            } finally {
-                loadingMsg.style.display = 'none';
-            }
+    try {
+        // Použijeme CORS proxy, aby prohlížeč neblokoval požadavek na Mojang API
+        const mojangUrl = `https://api.mojang.com/users/profiles/minecraft/${encodeURIComponent(username)}`;
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(mojangUrl)}`;
+        
+        const mojangRes = await fetch(proxyUrl);
+        if (!mojangRes.ok) throw new Error("Chyba při komunikaci s Mojang službou.");
+        
+        const proxyData = await mojangRes.json();
+        if (!proxyData.contents) {
+            throw new Error("Hráč s tímto jménem nebyl v Minecraftu nalezen.");
         }
+
+        const mojangData = JSON.parse(proxyData.contents);
+        const uuid = mojangData.id;
+
+        // Volání Hypixel SkyBlock Profiles API
+        const hypixelRes = await fetch(`https://api.hypixel.net/skyblock/profiles?key=${HYPIXEL_API_KEY}&uuid=${uuid}`);
+        
+        if (!hypixelRes.ok) {
+            throw new Error("Nepodařilo se načíst data z Hypixel API (zkontroluj platnost API klíče).");
+        }
+
+        const hypixelData = await hypixelRes.json();
+
+        if (!hypixelData.success || !hypixelData.profiles || hypixelData.profiles.length === 0) {
+            throw new Error("Pro tohoto hráče nebyly nalezeny žádné SkyBlock profily (nebo má zapnuté API v nastavení hry).");
+        }
+
+        rawJsonOutput.textContent = JSON.stringify(hypixelData, null, 2);
+        resultsContainer.style.display = 'block';
+
+    } catch (err) {
+        showError(err.message);
+    } finally {
+        loadingMsg.style.display = 'none';
+    }
+}
 
         function showError(message) {
             const errorMsg = document.getElementById('errorMsg');
