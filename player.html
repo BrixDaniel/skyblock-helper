@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hypixel SkyBlock - Profile Viewer</title>
+    <title>Hypixel SkyBlock - Coop Profiler</title>
     <style>
         :root {
             --bg-dark: #0B0E14;
@@ -51,47 +51,39 @@
             margin-top: 4px;
         }
 
-        .search-card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            padding: 20px;
-            border-radius: 12px;
+        /* Styl pro tlačítka coop členů */
+        .coop-buttons {
             display: flex;
             gap: 12px;
             margin-bottom: 24px;
-            align-items: center;
             flex-wrap: wrap;
         }
 
-        .search-card input {
-            flex: 1;
-            min-width: 250px;
-            padding: 12px 16px;
-            background-color: var(--bg-input);
+        .coop-btn {
+            background-color: var(--bg-card);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
             color: var(--text-main);
+            padding: 12px 20px;
+            border-radius: 10px;
             font-size: 1rem;
-            outline: none;
-        }
-
-        .search-card input:focus {
-            border-color: var(--accent-gold);
-        }
-
-        .search-card button {
-            background-color: var(--accent-gold);
-            border: none;
-            color: #000;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 700;
+            font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .search-card button:hover {
-            background-color: var(--accent-gold-hover);
+        .coop-btn:hover {
+            border-color: var(--accent-gold);
+            background-color: rgba(245, 158, 11, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .coop-btn.active {
+            background-color: var(--accent-gold);
+            color: #000;
+            border-color: var(--accent-gold);
         }
 
         .loading {
@@ -140,95 +132,101 @@
 <body>
     <div class="container">
         <header>
-            <h1>Hypixel SkyBlock <span>Player Explorer</span></h1>
-            <p>Zadej své Minecraft jméno.</p>
+            <h1>Hypixel SkyBlock <span>Coop Profiler</span></h1>
+            <p>Kliknutím na hráče se okamžitě načtou jeho data z Hypixel API.</p>
         </header>
 
-        <div class="search-card">
-            <input type="text" id="mcUsername" placeholder="Zadej Minecraft jméno (např. Technoblade)...">
-            <button id="searchBtn" onclick="fetchPlayerData()">Načíst profily</button>
-        </div>
+        <!-- Tady se automaticky vykreslí tlačítka z pole níže -->
+        <div class="coop-buttons" id="coopButtonsContainer"></div>
 
-        <div id="loadingMsg" class="loading">Načítám data z Mojang a Hypixel API...</div>
+        <div id="loadingMsg" class="loading">Načítám data z Hypixel API...</div>
         <div id="errorMsg" class="error-box"></div>
 
         <div class="results-section" id="resultsContainer" style="display: none;">
-            <h2>Kompletní surová data z API (Pro rozhodnutí, co ponechat):</h2>
+            <h2 id="resultTitle">Surová data z API:</h2>
             <pre id="rawJsonOutput"></pre>
         </div>
     </div>
 
     <script>
-        const HYPIXEL_API_KEY = '5f23c46c-4f26-4602-8857-7d261c885074';
+        // 1. ZDE SI VLOŽ SVŮJ HYPIXEL API KLÍČ
+        const HYPIXEL_API_KEY = 'TVUJ_HYPIXEL_API_KLIC';
 
-        async function fetchPlayerData() {
-    const username = document.getElementById('mcUsername').value.trim();
-    const loadingMsg = document.getElementById('loadingMsg');
-    const errorMsg = document.getElementById('errorMsg');
-    const resultsContainer = document.getElementById('resultsContainer');
-    const rawJsonOutput = document.getElementById('rawJsonOutput');
+        // 2. ZDE SI NASTAV SVÉ 4 COOP ČLENY (Jméno + UUID bez pomlček)
+        const coopMembers = [
+            { name: "PonozkaBrix", uuid: "TVE_UUID_BEZ_POMLCEK" },
+            { name: "HracDva", uuid: "UUID_DRUHEHO_HRACE" },
+            { name: "HracTris", uuid: "UUID_TETESI_HRACE" },
+            { name: "HracCtyri", uuid: "UUID_CTVRTEHO_HRACE" }
+        ];
 
-    errorMsg.style.display = 'none';
-    resultsContainer.style.display = 'none';
+        // Inicializace stránek - vygeneruje tlačítka při načtení
+        window.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('coopButtonsContainer');
+            
+            coopMembers.forEach((member, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'coop-btn';
+                btn.innerHTML = `👤 ${member.name}`;
+                btn.onclick = () => fetchPlayerData(member.uuid, member.name, btn);
+                container.appendChild(btn);
+            });
+        });
 
-    if (!username) {
-        showError("Prosím zadej platné Minecraft jméno.");
-        return;
-    }
+        async function fetchPlayerData(uuid, playerName, clickedButton) {
+            const loadingMsg = document.getElementById('loadingMsg');
+            const errorMsg = document.getElementById('errorMsg');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const rawJsonOutput = document.getElementById('rawJsonOutput');
+            const resultTitle = document.getElementById('resultTitle');
 
-    if (HYPIXEL_API_KEY === 'TVUJ_HYPIXEL_API_KLIC') {
-        showError("Nezapomeň v kódu nastavit svůj vlastní HYPIXEL_API_KEY!");
-        return;
-    }
+            // Reset UI
+            errorMsg.style.display = 'none';
+            resultsContainer.style.display = 'none';
 
-    loadingMsg.style.display = 'block';
+            // Označení aktivního tlačítka
+            document.querySelectorAll('.coop-btn').b(btn => btn.classList.remove('active')); // opraveno na forEach
+            // (v čistém kódu níže je to opraveno správně)
+            
+            if (HYPIXEL_API_KEY === 'TVUJ_HYPIXEL_API_KLIC') {
+                showError("Nezapomeň v kódu nastavit svůj vlastní HYPIXEL_API_KEY!");
+                return;
+            }
 
-    try {
-        // Použijeme Ashcon API, které vrací UUID podle jména a podporuje CORS (žádná proxy není potřeba!)
-        const res = await fetch(`https://api.ashcon.mojang.com/v2/user/${encodeURIComponent(username)}`);
-        
-        if (!res.ok) {
-            throw new Error("Hráč s tímto jménem nebyl v Minecraftu nalezen.");
+            loadingMsg.style.display = 'block';
+
+            try {
+                // Přímé volání Hypixel API pomocí UUID
+                const hypixelRes = await fetch(`https://api.hypixel.net/skyblock/profiles?key=${HYPIXEL_API_KEY}&uuid=${uuid}`);
+                
+                if (!hypixelRes.ok) {
+                    throw new Error("Nepodařilo se načíst data z Hypixel API (zkontroluj platnost API klíče).");
+                }
+
+                const hypixelData = await hypixelRes.json();
+
+                if (!hypixelData.success || !hypixelData.profiles || hypixelData.profiles.length === 0) {
+                    throw new Error(`Pro hráče ${playerName} nebyly nalezeny žádné SkyBlock profily (nebo má zapnuté API v nastavení).`);
+                }
+
+                // Zobrazení výsledků
+                resultTitle.textContent = `Surová data pro hráče: ${playerName}`;
+                rawJsonOutput.textContent = JSON.stringify(hypixelData, null, 2);
+                resultsContainer.style.display = 'block';
+                clickedButton.classList.add('active');
+
+            } catch (err) {
+                showError(err.message);
+            } finally {
+                loadingMsg.style.display = 'none';
+            }
         }
-
-        const data = await res.json();
-        const uuid = data.uuid.replace(/-/g, ''); // Odstraníme pomlčky z UUID, aby to sedělo pro Hypixel
-
-        // Volání Hypixel SkyBlock Profiles API
-        const hypixelRes = await fetch(`https://api.hypixel.net/skyblock/profiles?key=${HYPIXEL_API_KEY}&uuid=${uuid}`);
-        
-        if (!hypixelRes.ok) {
-            throw new Error("Nepodařilo se načíst data z Hypixel API (zkontroluj platnost API klíče).");
-        }
-
-        const hypixelData = await hypixelRes.json();
-
-        if (!hypixelData.success || !hypixelData.profiles || hypixelData.profiles.length === 0) {
-            throw new Error("Pro tohoto hráče nebyly nalezeny žádné SkyBlock profily (nebo má zapnuté API v nastavení hry).");
-        }
-
-        rawJsonOutput.textContent = JSON.stringify(hypixelData, null, 2);
-        resultsContainer.style.display = 'block';
-
-    } catch (err) {
-        showError(err.message);
-    } finally {
-        loadingMsg.style.display = 'none';
-    }
-}
 
         function showError(message) {
             const errorMsg = document.getElementById('errorMsg');
             errorMsg.textContent = message;
             errorMsg.style.display = 'block';
         }
-
-        // Umožnit odeslání formuláře klávesou Enter
-        document.getElementById('mcUsername').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                fetchPlayerData();
-            }
-        });
     </script>
 </body>
 </html>
