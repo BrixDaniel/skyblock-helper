@@ -51,7 +51,53 @@
             margin-top: 4px;
         }
 
-        /* Styl pro tlačítka coop členů */
+        .settings-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .settings-card label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .settings-card input {
+            flex: 1;
+            min-width: 280px;
+            padding: 8px 12px;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .settings-card input:focus {
+            border-color: var(--accent-gold);
+        }
+
+        .save-btn {
+            background-color: var(--accent-gold);
+            border: none;
+            color: #000;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .save-btn:hover {
+            background-color: var(--accent-gold-hover);
+        }
+
         .coop-buttons {
             display: flex;
             gap: 12px;
@@ -133,10 +179,17 @@
     <div class="container">
         <header>
             <h1>Hypixel SkyBlock <span>Coop Profiler</span></h1>
-            <p>Kliknutím na hráče se okamžitě načtou jeho data z Hypixel API.</p>
+            <p>Bezpečné zobrazení dat tvých coop členů.</p>
         </header>
 
-        <!-- Tady se automaticky vykreslí tlačítka z pole níže -->
+        <!-- Nastavení API klíče, který se uložení do paměti prohlížeče -->
+        <div class="settings-card">
+            <label for="apiKeyInput">Hypixel API Klíč:</label>
+            <input type="password" id="apiKeyInput" placeholder="Vlož svůj API klíč z developer.hypixel.net...">
+            <button class="save-btn" onclick="saveApiKey()">Uložit klíč</button>
+        </div>
+
+        <!-- Tlačítka coop členů -->
         <div class="coop-buttons" id="coopButtonsContainer"></div>
 
         <div id="loadingMsg" class="loading">Načítám data z Hypixel API...</div>
@@ -149,10 +202,7 @@
     </div>
 
     <script>
-        // 1. ZDE SI VLOŽ SVŮJ HYPIXEL API KLÍČ
-        const HYPIXEL_API_KEY = 'TVUJ_HYPIXEL_API_KLIC';
-
-        // 2. ZDE SI NASTAV SVÉ 4 COOP ČLENY (Jméno + UUID bez pomlček)
+        // Zde si nastav svá 4 coop členů (Jméno + UUID bez pomlček)
         const coopMembers = [
             { name: "PonozkaBrix", uuid: "TVE_UUID_BEZ_POMLCEK" },
             { name: "HracDva", uuid: "UUID_DRUHEHO_HRACE" },
@@ -160,11 +210,16 @@
             { name: "HracCtyri", uuid: "UUID_CTVRTEHO_HRACE" }
         ];
 
-        // Inicializace stránek - vygeneruje tlačítka při načtení
+        // Načtení klíče z localStorage do inputu při startu
         window.addEventListener('DOMContentLoaded', () => {
+            const savedKey = localStorage.getItem('hypixel_api_key');
+            if (savedKey) {
+                document.getElementById('apiKeyInput').value = savedKey;
+            }
+
+            // Vygenerování tlačítek
             const container = document.getElementById('coopButtonsContainer');
-            
-            coopMembers.forEach((member, index) => {
+            coopMembers.forEach((member) => {
                 const btn = document.createElement('button');
                 btn.className = 'coop-btn';
                 btn.innerHTML = `👤 ${member.name}`;
@@ -173,6 +228,17 @@
             });
         });
 
+        function saveApiKey() {
+            const key = document.getElementById('apiKeyInput').value.trim();
+            if (key) {
+                localStorage.setItem('hypixel_api_key', key);
+                alert("API klíč byl úspěšně uložen do tvého prohlížeče!");
+            } else {
+                localStorage.removeItem('hypixel_api_key');
+                alert("API klíč byl smazán.");
+            }
+        }
+
         async function fetchPlayerData(uuid, playerName, clickedButton) {
             const loadingMsg = document.getElementById('loadingMsg');
             const errorMsg = document.getElementById('errorMsg');
@@ -180,27 +246,25 @@
             const rawJsonOutput = document.getElementById('rawJsonOutput');
             const resultTitle = document.getElementById('resultTitle');
 
-            // Reset UI
             errorMsg.style.display = 'none';
             resultsContainer.style.display = 'none';
 
-            // Označení aktivního tlačítka
-            document.querySelectorAll('.coop-btn').b(btn => btn.classList.remove('active')); // opraveno na forEach
-            // (v čistém kódu níže je to opraveno správně)
-            
-            if (HYPIXEL_API_KEY === 'TVUJ_HYPIXEL_API_KLIC') {
-                showError("Nezapomeň v kódu nastavit svůj vlastní HYPIXEL_API_KEY!");
+            // Získání klíče z localStorage
+            const apiKey = localStorage.getItem('hypixel_api_key');
+
+            if (!apiKey) {
+                showError("Nejprve si nahoře vlož a ulož svůj Hypixel API klíč!");
                 return;
             }
 
+            document.querySelectorAll('.coop-btn').forEach(b => b.classList.remove('active'));
             loadingMsg.style.display = 'block';
 
             try {
-                // Přímé volání Hypixel API pomocí UUID
-                const hypixelRes = await fetch(`https://api.hypixel.net/skyblock/profiles?key=${HYPIXEL_API_KEY}&uuid=${uuid}`);
+                const hypixelRes = await fetch(`https://api.hypixel.net/skyblock/profiles?key=${apiKey}&uuid=${uuid}`);
                 
                 if (!hypixelRes.ok) {
-                    throw new Error("Nepodařilo se načíst data z Hypixel API (zkontroluj platnost API klíče).");
+                    throw new Error("Nepodařilo se načíst data z Hypixel API (zkontroluj, zda je tvůj API klíč správný).");
                 }
 
                 const hypixelData = await hypixelRes.json();
@@ -209,7 +273,6 @@
                     throw new Error(`Pro hráče ${playerName} nebyly nalezeny žádné SkyBlock profily (nebo má zapnuté API v nastavení).`);
                 }
 
-                // Zobrazení výsledků
                 resultTitle.textContent = `Surová data pro hráče: ${playerName}`;
                 rawJsonOutput.textContent = JSON.stringify(hypixelData, null, 2);
                 resultsContainer.style.display = 'block';
