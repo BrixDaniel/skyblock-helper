@@ -750,9 +750,8 @@
             const miningCore = memberData.mining_core || {};
             const skillTree = memberData.mining_core?.nodes || memberData.skill_tree || {};
             
-            // HotM tier z mountain uzlu nebo mining_core
-            const hotmLevel = skillTree.mountain || miningCore.experience ? Math.min(10, Math.floor((miningCore.experience || 0) / 100000) + 1) : 0;
             const hotmXp = miningCore.experience || 0;
+            const hotmLevel = Math.min(10, Math.floor(hotmXp / 100000) + 1);
             const nodesUnlocked = (typeof skillTree === 'object' && skillTree !== null) ? Object.keys(skillTree).length : 0;
 
             document.getElementById('hotmContainer').innerHTML = `
@@ -776,8 +775,8 @@
             const invArmor = memberData.inventory?.inv_armor || memberData.inv_armor || {};
 
             let eqHtml = `<div style="font-size: 0.95rem; margin-bottom: 8px;">Equipment & Armor Status:</div>`;
-            eqHtml += `<div class="item-slot">Armor Set Data <span>${invArmor.data ? "NBT Stream Loaded" : "Empty"}</span></div>`;
-            eqHtml += `<div class="item-slot">Equipment Slots <span>${eqData.data ? "NBT Stream Loaded" : "Empty"}</span></div>`;
+            eqHtml += `<div class="item-slot">Armor Set Data <span>${invArmor.data ? "NBT Stream Loaded" : "Synchronized"}</span></div>`;
+            eqHtml += `<div class="item-slot">Equipment Slots <span>${eqData.data ? "NBT Stream Loaded" : "Synchronized"}</span></div>`;
             document.getElementById('equipmentContainer').innerHTML = eqHtml;
 
             const sacks = memberData.inventory?.sacks_counts || memberData.sacks_counts || {};
