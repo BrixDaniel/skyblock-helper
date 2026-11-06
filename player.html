@@ -267,7 +267,11 @@
             loadingMsg.style.display = 'block';
 
             try {
-                const hypixelRes = await fetch(`https://api.hypixel.net/skyblock/profiles?key=${apiKey}&uuid=${uuid}`);
+                const hypixelRes = await fetch(`https://api.hypixel.net/skyblock/profiles?uuid=${uuid}`, {
+                    headers: {
+                        'API-Key': apiKey
+                    }
+                });
                 
                 if (!hypixelRes.ok) {
                     throw new Error("Nepodařilo se načíst data z Hypixel API (zkontroluj, zda je tvůj API klíč správný).");
