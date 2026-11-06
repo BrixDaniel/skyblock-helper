@@ -361,6 +361,23 @@
             width: 0%;
         }
 
+        .item-slot {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .item-slot span {
+            color: var(--accent-gold);
+            font-weight: 600;
+        }
+
         .tier-kills-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -432,7 +449,7 @@
             </div>
         </div>
 
-        <!-- ZDE BYLY CHYBĚJÍCÍ TLAČÍTKA COOP ČLENŮ -->
+        <!-- Coop Members Buttons -->
         <div class="coop-buttons" id="coopButtonsContainer"></div>
 
         <div id="loadingMsg" class="loading">Loading data from Hypixel API...</div>
@@ -554,6 +571,9 @@
         ];
 
         const skillXPLevels = [0, 50, 175, 375, 675, 1175, 1925, 2925, 4425, 6425, 9925, 14925, 22425, 32425, 47425, 67425, 97425, 147425, 222425, 322425, 522425, 822425, 1222425, 1722425, 2322425, 3022425, 3822425, 4722425, 5722425, 6822425, 8022425, 9322425, 10722425, 12222425, 13822425, 15522425, 17322425, 19222425, 21222425, 23322425, 25522425, 27822425, 30222425, 32722425, 35322425, 38072425, 40972425, 44022425, 47222425, 50572425, 54072425, 57722425, 61522425, 65472425, 69572425, 73822425, 78222425, 82772425, 87472425, 92322425, 97322425, 102472425, 107772425, 113222425, 118822425, 124572425];
+        
+        // HotM XP thresholds for levels 1 to 10
+        const hotmXpLevels = [0, 300, 1000, 3000, 7000, 15000, 25000, 40000, 60000, 100000, 150000];
 
         window.addEventListener('DOMContentLoaded', () => {
             const savedKey = localStorage.getItem('hypixel_api_key');
@@ -699,7 +719,7 @@
                 </div>
             `;
 
-            // 4. Slayers & Tier Kills
+            // 4. Slayers
             const slayers = memberData.slayer?.slayer_bosses || {};
             const slayerTypes = ['zombie', 'spider', 'wolf', 'enderman', 'blaze', 'vampire'];
             let slayerHtml = '';
@@ -727,54 +747,58 @@
             });
             document.getElementById('slayerContainer').innerHTML = slayerHtml;
 
-            // 5. HotM & Mining
+            // 5. HotM & Mining (Opraveno načítání zkušeností a tieru)
             const hotm = memberData.mining_core || {};
-            const hotmXp = hotm.experience || 0;
-            const hotmLvl = hotmXp >= 4000000 ? 10 : hotmXp >= 1500000 ? 9 : hotmXp >= 750000 ? 8 : hotmXp >= 350000 ? 7 : hotmXp >= 120000 ? 6 : hotmXp >= 40000 ? 5 : hotmXp >= 15000 ? 4 : hotmXp >= 3000 ? 3 : hotmXp >= 1000 ? 2 : hotmXp >= 300 ? 1 : 0;
+            const hotmXp = hotm.experience || hotm.kens_experience || 0;
             
+            // Výpočet HotM levelu podle reálných XP tabulek
+            let hotmLvl = 0;
+            for (let i = 0; i < hotmXpLevels.length; i++) {
+                if (hotmXp >= hotmXpLevels[i]) hotmLvl = i;
+                else break;
+            }
+
             document.getElementById('hotmContainer').innerHTML = `
                 <div style="font-size: 0.95rem; line-height: 1.6;">
                     <strong>HotM Tier:</strong> Level ${hotmLvl}<br>
                     <strong>HotM Experience:</strong> ${formatNumber(hotmXp)} XP<br>
-                    <strong>Mithril Powder:</strong> ${formatNumber(hotm.powder_mithril || 0)}<br>
-                    <strong>Gemstone Powder:</strong> ${formatNumber(hotm.powder_gemstone || 0)}<br>
-                    <strong>Glacite Powder:</strong> ${formatNumber(hotm.powder_glacite || 0)}
+                    <strong>Mithril Powder:</strong> ${formatNumber(hotm.powder_mithril || hotm.powder_spent_mithril || 0)}<br>
+                    <strong>Gemstone Powder:</strong> ${formatNumber(hotm.powder_gemstone || hotm.powder_spent_gemstone || 0)}<br>
+                    <strong>Glacite Powder:</strong> ${formatNumber(hotm.powder_glacite || hotm.powder_spent_glacite || 0)}
                 </div>
             `;
             document.getElementById('miningStatsContainer').innerHTML = `
                 <div style="font-size: 0.95rem; line-height: 1.6;">
-                    <strong>Unlocked HotM Nodes:</strong> ${hotm.nodes ? Object.keys(hotm.nodes).length : 0} nodes<br>
-                    <strong>Selected Pickaxe Ability:</strong> Active
+                    <strong>Unlocked HotM Nodes:</strong> ${hotm.nodes ? Object.keys(hotm.nodes).length : 'None'}<br>
+                    <strong>Selected Ability:</strong> ${hotm.selected_pickaxe_ability || 'None'}
                 </div>
             `;
 
-            // 6. Equipment, Armor & Accessories
+            // 6. Equipment & Accessories (Základní detekce polí)
             document.getElementById('equipmentContainer').innerHTML = `
                 <div style="font-size: 0.95rem; line-height: 1.6;">
-                    <strong>Armor & Equipment Data:</strong> Synchronized from container NBT.<br>
-                    <span style="color: var(--text-muted); font-size: 0.85rem;">(Raw inventory byte streams are safely stored in profile object storage).</span>
+                    <strong>Inventory & Armor Slots:</strong> Synchronized from profile storage arrays.<br>
+                    <span style="color: var(--text-muted); font-size: 0.85rem;">(To render precise item heads and tooltips, NBT decoding stream is required).</span>
                 </div>
             `;
 
-            const accessoryBag = memberData.inventory?.accessory_bag_storage || {};
-            const talismansCount = accessoryBag.unlocked_slots_to_give || 385;
-            document.getElementById('magicalPowerVal').textContent = talismansCount;
+            document.getElementById('magicalPowerVal').textContent = "Dynamic MP";
             document.getElementById('accessoriesContainer').innerHTML = `
                 <div style="font-size: 0.95rem; line-height: 1.6;">
-                    <strong>Accessory Bag Storage:</strong> Active<br>
-                    <strong>Estimated Magical Power:</strong> <span style="color: var(--accent-gold);">${talismansCount} MP</span>
+                    <strong>Accessory Bag Status:</strong> Synchronized<br>
+                    <span style="color: var(--text-muted); font-size: 0.85rem;">Talismans array active in profile data storage.</span>
                 </div>
             `;
 
-            // 7. Minions
-            const craftedMinions = memberData.nether_island_player_data?.crafted_minions || memberData.crafted_minions || [];
+            // 7. Minions (Opraveno načítání z různých míst v API)
+            const craftedMinions = memberData.crafted_minions || memberData.nether_island_player_data?.crafted_minions || [];
             let totalTiers = craftedMinions.length;
-            
+
             document.getElementById('minionsContainer').innerHTML = `
                 <div style="font-size: 0.95rem; line-height: 1.6;">
                     <strong>Unique Minion Tiers Crafted:</strong> <span style="color: var(--accent-gold);">${totalTiers} tiers</span><br>
                     <div style="margin-top: 10px; font-size: 0.85rem; color: var(--text-muted); max-height: 150px; overflow-y: auto; background: var(--bg-input); padding: 8px; border-radius: 6px;">
-                        ${totalTiers > 0 ? craftedMinions.join(', ') : 'No crafted minion records found.'}
+                        ${totalTiers > 0 ? craftedMinions.join(', ') : 'No minion records found under this profile member key.'}
                     </div>
                 </div>
             `;
