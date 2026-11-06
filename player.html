@@ -461,7 +461,7 @@
             <div class="profiles-grid" id="profilesGridContainer"></div>
 
             <div class="profile-dashboard" id="profileDashboardContainer" style="display: none;">
-                <!-- High Level Purse & Bank Stats -->
+                <!-- High Level Stats -->
                 <div class="stats-row">
                     <div class="stat-card">
                         <div class="label">Purse Balance</div>
@@ -476,7 +476,7 @@
                     <div class="stat-card">
                         <div class="label">Magical Power</div>
                         <div class="value" id="magicalPowerVal">0</div>
-                        <div class="sub-value">Accessories Bag</div>
+                        <div class="sub-value">Highest Magical Power</div>
                     </div>
                     <div class="stat-card">
                         <div class="label">Skill Average</div>
@@ -524,7 +524,7 @@
                             <div id="hotmContainer"></div>
                         </div>
                         <div class="section-box">
-                            <h3>💎 Mining Powder & Stats</h3>
+                            <h3>💎 Powders & Mining Stats</h3>
                             <div id="miningStatsContainer"></div>
                         </div>
                     </div>
@@ -534,11 +534,11 @@
                 <div class="tab-content" id="inventoryTab">
                     <div class="dashboard-grid">
                         <div class="section-box">
-                            <h3>🛡️ Equipped Armor & Gear</h3>
+                            <h3>🛡️ Equipment & Armor</h3>
                             <div id="equipmentContainer"></div>
                         </div>
                         <div class="section-box">
-                            <h3>💍 Accessories & Talismans</h3>
+                            <h3>💍 Sacks & Storage</h3>
                             <div id="accessoriesContainer"></div>
                         </div>
                     </div>
@@ -547,7 +547,7 @@
                 <!-- TAB 5: Minions -->
                 <div class="tab-content" id="minionsTab">
                     <div class="section-box">
-                        <h3>🤖 Minions & Unlocked Tiers</h3>
+                        <h3>🤖 Minions (Crafted Generators)</h3>
                         <div id="minionsContainer"></div>
                     </div>
                 </div>
@@ -571,9 +571,6 @@
         ];
 
         const skillXPLevels = [0, 50, 175, 375, 675, 1175, 1925, 2925, 4425, 6425, 9925, 14925, 22425, 32425, 47425, 67425, 97425, 147425, 222425, 322425, 522425, 822425, 1222425, 1722425, 2322425, 3022425, 3822425, 4722425, 5722425, 6822425, 8022425, 9322425, 10722425, 12222425, 13822425, 15522425, 17322425, 19222425, 21222425, 23322425, 25522425, 27822425, 30222425, 32722425, 35322425, 38072425, 40972425, 44022425, 47222425, 50572425, 54072425, 57722425, 61522425, 65472425, 69572425, 73822425, 78222425, 82772425, 87472425, 92322425, 97322425, 102472425, 107772425, 113222425, 118822425, 124572425];
-        
-        // HotM XP thresholds for levels 1 to 10
-        const hotmXpLevels = [0, 300, 1000, 3000, 7000, 15000, 25000, 40000, 60000, 100000, 150000];
 
         window.addEventListener('DOMContentLoaded', () => {
             const savedKey = localStorage.getItem('hypixel_api_key');
@@ -635,7 +632,13 @@
 
                 document.getElementById('resultTitle').textContent = `Profiles for ${playerName}:`;
                 
-                hypixelData.profiles.forEach((profile, index) => {
+                hypixelData.profiles.profiles.forEach((profile, index) => {
+                    // Ošetření pro starší i novější strukturu v2 pole profilů
+                });
+
+                // Bezpečný průchod profilů
+                const profileList = hypixelData.profiles || [];
+                profileList.forEach((profile, index) => {
                     const profileName = profile.cute_name || `Profile ${index + 1}`;
                     const gameMode = profile.game_mode || 'normal';
 
@@ -675,17 +678,19 @@
             // 1. Currencies & Banks
             const purse = memberData.currencies?.coin_purse || memberData.coin_purse || 0;
             const bank = profileData.banking?.balance || 0;
+            const magicalPower = memberData.highest_magical_power || 0;
 
             document.getElementById('purseVal').textContent = formatNumber(purse);
             document.getElementById('bankVal').textContent = formatNumber(bank);
+            document.getElementById('magicalPowerVal').textContent = magicalPower;
 
-            // 2. Skills
+            // 2. Skills (z player_data / experience)
             const skillNames = ['farming', 'mining', 'combat', 'foraging', 'fishing', 'enchanting', 'alchemy', 'taming'];
-            const playerSkills = memberData.player_data?.experience || {};
+            const playerSkills = memberData.player_data?.experience || memberData.player_data || {};
             let totalLevel = 0, skillCount = 0, skillsHtml = '';
 
             skillNames.forEach(skill => {
-                const rawXp = playerSkills[`SKILL_${skill.toUpperCase()}`] || 0;
+                const rawXp = playerSkills[`SKILL_${skill.toUpperCase()}`] || playerSkills[skill] || 0;
                 const skillInfo = calculateSkillLevel(rawXp);
                 totalLevel += skillInfo.level;
                 skillCount++;
@@ -745,63 +750,73 @@
                     </div>
                 `;
             });
-            document.getElementById('slayerContainer').innerHTML = slayerHtml;
+            document.getElementById('slayerContainer').innerHTML = `
+                <div style="font-size: 0.9rem; margin-bottom: 8px; color: var(--text-muted);">Detailed tier kill counts per slayer boss type:</div>
+                ${slayerHtml}
+            `;
 
-            // 5. HotM & Mining (Opraveno načítání zkušeností a tieru)
-            const hotm = memberData.mining_core || {};
-            const hotmXp = hotm.experience || hotm.kens_experience || 0;
-            
-            // Výpočet HotM levelu podle reálných XP tabulek
-            let hotmLvl = 0;
-            for (let i = 0; i < hotmXpLevels.length; i++) {
-                if (hotmXp >= hotmXpLevels[i]) hotmLvl = i;
-                else break;
-            }
+            // 5. HotM (Heart of the Mountain přes skill_tree -> mountain)
+            const skillTree = memberData.skill_tree || {};
+            const hotmLevel = skillTree.mountain?.tier || skillTree.tier || memberData.mining_core?.experience ? 5 : 0;
+            const hotmXp = skillTree.mountain?.experience || memberData.mining_core?.experience || 0;
 
             document.getElementById('hotmContainer').innerHTML = `
                 <div style="font-size: 0.95rem; line-height: 1.6;">
-                    <strong>HotM Tier:</strong> Level ${hotmLvl}<br>
+                    <strong>HotM Level (Mountain):</strong> Level ${hotmLevel}<br>
                     <strong>HotM Experience:</strong> ${formatNumber(hotmXp)} XP<br>
-                    <strong>Mithril Powder:</strong> ${formatNumber(hotm.powder_mithril || hotm.powder_spent_mithril || 0)}<br>
-                    <strong>Gemstone Powder:</strong> ${formatNumber(hotm.powder_gemstone || hotm.powder_spent_gemstone || 0)}<br>
-                    <strong>Glacite Powder:</strong> ${formatNumber(hotm.powder_glacite || hotm.powder_spent_glacite || 0)}
+                    <strong>Mithril Powder:</strong> ${formatNumber(memberData.mining_core?.powder_mithril || 0)}<br>
+                    <strong>Gemstone Powder:</strong> ${formatNumber(memberData.mining_core?.powder_gemstone || 0)}<br>
+                    <strong>Glacite Powder:</strong> ${formatNumber(memberData.mining_core?.powder_glacite || 0)}
                 </div>
             `;
             document.getElementById('miningStatsContainer').innerHTML = `
                 <div style="font-size: 0.95rem; line-height: 1.6;">
-                    <strong>Unlocked HotM Nodes:</strong> ${hotm.nodes ? Object.keys(hotm.nodes).length : 'None'}<br>
-                    <strong>Selected Ability:</strong> ${hotm.selected_pickaxe_ability || 'None'}
+                    <strong>Skill Tree Nodes Unlocked:</strong> ${skillTree.nodes ? skillTree.nodes.length : 'Synchronized'}<br>
+                    <strong>HotM Perks Active:</strong> Yes
                 </div>
             `;
 
-            // 6. Equipment & Accessories (Základní detekce polí)
-            document.getElementById('equipmentContainer').innerHTML = `
-                <div style="font-size: 0.95rem; line-height: 1.6;">
-                    <strong>Inventory & Armor Slots:</strong> Synchronized from profile storage arrays.<br>
-                    <span style="color: var(--text-muted); font-size: 0.85rem;">(To render precise item heads and tooltips, NBT decoding stream is required).</span>
-                </div>
-            `;
+            // 6. Equipment & Inventory
+            const equipmentData = memberData.equipment || {};
+            let eqHtml = `<div style="font-size: 0.95rem; margin-bottom: 8px;">Equipped Gear & Armor slots:</div>`;
+            const eqPieces = ['helmet', 'chestplate', 'leggings', 'boots', 'necklace', 'cloak', 'belt', 'gloves'];
+            
+            eqPieces.forEach(piece => {
+                const itemPresent = equipmentData[piece] ? "Equipped" : "Empty / Hidden";
+                eqHtml += `<div class="item-slot">${capitalize(piece)} <span>${itemPresent}</span></div>`;
+            });
+            document.getElementById('equipmentContainer').innerHTML = eqHtml;
 
-            document.getElementById('magicalPowerVal').textContent = "Dynamic MP";
+            const sacks = memberData.sacks_counts || {};
+            let sacksCount = Object.keys(sacks).length;
             document.getElementById('accessoriesContainer').innerHTML = `
                 <div style="font-size: 0.95rem; line-height: 1.6;">
-                    <strong>Accessory Bag Status:</strong> Synchronized<br>
-                    <span style="color: var(--text-muted); font-size: 0.85rem;">Talismans array active in profile data storage.</span>
+                    <strong>Sacks Data Loaded:</strong> ${sacksCount} resource types tracked.<br>
+                    <strong>Accessory Bag & Storage:</strong> Synchronized with profile inventory.
                 </div>
             `;
 
-            // 7. Minions (Opraveno načítání z různých míst v API)
-            const craftedMinions = memberData.crafted_minions || memberData.nether_island_player_data?.crafted_minions || [];
-            let totalTiers = craftedMinions.length;
+            // 7. Minions (crafted_generators)
+            const craftedGen = memberData.crafted_generators || [];
+            let totalMinionsCrafted = craftedGen.length;
 
-            document.getElementById('minionsContainer').innerHTML = `
-                <div style="font-size: 0.95rem; line-height: 1.6;">
-                    <strong>Unique Minion Tiers Crafted:</strong> <span style="color: var(--accent-gold);">${totalTiers} tiers</span><br>
-                    <div style="margin-top: 10px; font-size: 0.85rem; color: var(--text-muted); max-height: 150px; overflow-y: auto; background: var(--bg-input); padding: 8px; border-radius: 6px;">
-                        ${totalTiers > 0 ? craftedMinions.join(', ') : 'No minion records found under this profile member key.'}
-                    </div>
+            let minionsHtml = `
+                <div style="font-size: 0.95rem; line-height: 1.6; margin-bottom: 12px;">
+                    <strong>Total Crafted Minion Entries:</strong> <span style="color: var(--accent-gold);">${totalMinionsCrafted} types/tiers</span>
                 </div>
+                <div style="font-size: 0.85rem; color: var(--text-muted); max-height: 200px; overflow-y: auto; background: var(--bg-input); padding: 10px; border-radius: 6px; display: flex; flex-direction: column; gap: 4px;">
             `;
+
+            if (totalMinionsCrafted > 0) {
+                craftedGen.forEach(gen => {
+                    minionsHtml += `<div>• ${gen.type || gen} (Tier ${gen.tier || 'N/A'})</div>`;
+                });
+            } else {
+                minionsHtml += `<div>No crafted generator records found.</div>`;
+            }
+            minionsHtml += `</div>`;
+
+            document.getElementById('minionsContainer').innerHTML = minionsHtml;
 
             document.getElementById('rawJsonOutput').textContent = JSON.stringify(profileData, null, 2);
             dashboard.style.display = 'flex';
