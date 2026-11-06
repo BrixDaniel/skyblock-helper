@@ -182,11 +182,16 @@
             <p>Bezpečné zobrazení dat tvých coop členů.</p>
         </header>
 
-        <!-- Nastavení API klíče, který se uložení do paměti prohlížeče -->
+        <!-- Nastavení API klíče s odkazem -->
         <div class="settings-card">
-            <label for="apiKeyInput">Hypixel API Klíč:</label>
-            <input type="password" id="apiKeyInput" placeholder="Vlož svůj API klíč z developer.hypixel.net...">
-            <button class="save-btn" onclick="saveApiKey()">Uložit klíč</button>
+            <div class="input-group">
+                <label for="apiKeyInput">Hypixel API Klíč:</label>
+                <input type="password" id="apiKeyInput" placeholder="Vlož svůj API klíč...">
+                <button class="save-btn" onclick="saveApiKey()">Uložit klíč</button>
+            </div>
+            <div class="api-help">
+                Klíč si vytvoř zde: <a href="https://developer.hypixel.net/dashboard/" target="_blank" rel="noopener noreferrer">Hypixel Developer Dashboard</a>
+            </div>
         </div>
 
         <!-- Tlačítka coop členů -->
@@ -204,10 +209,11 @@
     <script>
         // Zde si nastav svá 4 coop členů (Jméno + UUID bez pomlček)
         const coopMembers = [
-            { name: "PonozkaBrix", uuid: "TVE_UUID_BEZ_POMLCEK" },
-            { name: "HracDva", uuid: "UUID_DRUHEHO_HRACE" },
-            { name: "HracTris", uuid: "UUID_TETESI_HRACE" },
-            { name: "HracCtyri", uuid: "UUID_CTVRTEHO_HRACE" }
+            { name: "PonozkaBrix", uuid: "ba6444571f844183a13ff51ad41bc848" },
+            { name: "HejtyCZE", uuid: "47b0769cd2ef4e4d88637e839b5d1c54" },
+            { name: "Goromc", uuid: "444f89c6cfa94743a67136c8e727bd88" },
+            { name: "_Val3rie_", uuid: "7ae8f1c37ab24777a1a6cbbeb35c23b3" },
+            { name: "EndyWilliams", uuid: "703cb88ef6784fa3a28e6b2771748daa" }
         ];
 
         // Načtení klíče z localStorage do inputu při startu
