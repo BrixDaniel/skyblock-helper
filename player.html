@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,6 +14,7 @@
             --text-muted: #8E9BAE;
             --accent-gold: #F59E0B;
             --accent-gold-hover: #D97706;
+            --profile-active: #1E293B;
         }
 
         * {
@@ -54,22 +55,29 @@
         .settings-card {
             background-color: var(--bg-card);
             border: 1px solid var(--border-color);
-            padding: 16px 20px;
+            padding: 20px;
             border-radius: 12px;
             margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .input-group {
             display: flex;
             align-items: center;
             gap: 12px;
             flex-wrap: wrap;
+            width: 100%;
         }
 
-        .settings-card label {
+        .input-group label {
             font-weight: 600;
             font-size: 0.9rem;
             color: var(--text-muted);
         }
 
-        .settings-card input {
+        .input-group input {
             flex: 1;
             min-width: 280px;
             padding: 8px 12px;
@@ -81,7 +89,7 @@
             outline: none;
         }
 
-        .settings-card input:focus {
+        .input-group input:focus {
             border-color: var(--accent-gold);
         }
 
@@ -96,6 +104,16 @@
         }
         .save-btn:hover {
             background-color: var(--accent-gold-hover);
+        }
+
+        .api-help {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+
+        .api-help a {
+            color: var(--accent-gold);
+            text-decoration: underline;
         }
 
         .coop-buttons {
@@ -149,17 +167,83 @@
             display: none;
         }
 
+        /* Sekce pro dlaždice profilů */
         .results-section {
+            display: none;
+            margin-top: 24px;
+        }
+
+        .results-section h2 {
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+            color: var(--accent-gold);
+        }
+
+        .profiles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .profile-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .profile-card:hover {
+            border-color: var(--accent-gold);
+            transform: translateY(-2px);
+        }
+
+        .profile-card.selected {
+            border-color: var(--accent-gold);
+            background-color: var(--profile-active);
+        }
+
+        .profile-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #FFFFFF;
+            margin-bottom: 6px;
+            text-transform: capitalize;
+        }
+
+        .profile-id {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            font-family: monospace;
+        }
+
+        .profile-mode {
+            display: inline-block;
+            background-color: rgba(56, 189, 248, 0.1);
+            color: #38BDF8;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        /* Detail vybraného profilu (JSON) */
+        .profile-detail {
             background-color: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 24px;
         }
 
-        .results-section h2 {
-            font-size: 1.2rem;
+        .profile-detail h3 {
+            font-size: 1rem;
             margin-bottom: 12px;
-            color: var(--accent-gold);
+            color: var(--text-main);
         }
 
         pre {
@@ -171,7 +255,7 @@
             color: #38BDF8;
             font-family: monospace;
             font-size: 0.9rem;
-            max-height: 600px;
+            max-height: 400px;
         }
     </style>
 </head>
@@ -179,51 +263,54 @@
     <div class="container">
         <header>
             <h1>Hypixel SkyBlock <span>Coop Profiler</span></h1>
-            <p>Bezpečné zobrazení dat tvých coop členů.</p>
+            <p>Securely view and explore your coop members' SkyBlock profiles.</p>
         </header>
 
-        <!-- Nastavení API klíče s odkazem -->
+        <!-- API Key Settings Card -->
         <div class="settings-card">
             <div class="input-group">
-                <label for="apiKeyInput">Hypixel API Klíč:</label>
-                <input type="password" id="apiKeyInput" placeholder="Vlož svůj API klíč...">
-                <button class="save-btn" onclick="saveApiKey()">Uložit klíč</button>
+                <label for="apiKeyInput">Hypixel API Key:</label>
+                <input type="password" id="apiKeyInput" placeholder="Enter your personal API key...">
+                <button class="save-btn" onclick="saveApiKey()">Save Key</button>
             </div>
             <div class="api-help">
-                Klíč si vytvoř zde: <a href="https://developer.hypixel.net/dashboard/" target="_blank" rel="noopener noreferrer">Hypixel Developer Dashboard</a>
+                You can get your free API key at the <a href="https://developer.hypixel.net/dashboard/" target="_blank" rel="noopener noreferrer">Hypixel Developer Dashboard</a>.
             </div>
         </div>
 
-        <!-- Tlačítka coop členů -->
+        <!-- Coop Members Buttons -->
         <div class="coop-buttons" id="coopButtonsContainer"></div>
 
-        <div id="loadingMsg" class="loading">Načítám data z Hypixel API...</div>
+        <div id="loadingMsg" class="loading">Loading data from Hypixel API...</div>
         <div id="errorMsg" class="error-box"></div>
 
-        <div class="results-section" id="resultsContainer" style="display: none;">
-            <h2 id="resultTitle">Surová data z API:</h2>
-            <pre id="rawJsonOutput"></pre>
+        <!-- Profiles Grid & Detail Section -->
+        <div class="results-section" id="resultsContainer">
+            <h2 id="resultTitle">Profiles found:</h2>
+            <div class="profiles-grid" id="profilesGridContainer"></div>
+
+            <div class="profile-detail" id="profileDetailContainer" style="display: none;">
+                <h3 id="detailTitle">Raw Data for Selected Profile:</h3>
+                <pre id="rawJsonOutput"></pre>
+            </div>
         </div>
     </div>
 
     <script>
-        // Zde si nastav svá 4 coop členů (Jméno + UUID bez pomlček)
+        // Define your 4 coop members (Name + UUID without dashes)
         const coopMembers = [
-            { name: "PonozkaBrix", uuid: "ba6444571f844183a13ff51ad41bc848" },
-            { name: "HejtyCZE", uuid: "47b0769cd2ef4e4d88637e839b5d1c54" },
-            { name: "Goromc", uuid: "444f89c6cfa94743a67136c8e727bd88" },
-            { name: "_Val3rie_", uuid: "7ae8f1c37ab24777a1a6cbbeb35c23b3" },
-            { name: "EndyWilliams", uuid: "703cb88ef6784fa3a28e6b2771748daa" }
+            { name: "PonozkaBrix", uuid: "TVE_UUID_BEZ_POMLCEK" },
+            { name: "HracDva", uuid: "UUID_DRUHEHO_HRACE" },
+            { name: "HracTris", uuid: "UUID_TETESI_HRACE" },
+            { name: "HracCtyri", uuid: "UUID_CTVRTEHO_HRACE" }
         ];
 
-        // Načtení klíče z localStorage do inputu při startu
         window.addEventListener('DOMContentLoaded', () => {
             const savedKey = localStorage.getItem('hypixel_api_key');
             if (savedKey) {
                 document.getElementById('apiKeyInput').value = savedKey;
             }
 
-            // Vygenerování tlačítek
             const container = document.getElementById('coopButtonsContainer');
             coopMembers.forEach((member) => {
                 const btn = document.createElement('button');
@@ -238,10 +325,10 @@
             const key = document.getElementById('apiKeyInput').value.trim();
             if (key) {
                 localStorage.setItem('hypixel_api_key', key);
-                alert("API klíč byl úspěšně uložen do tvého prohlížeče!");
+                alert("API key successfully saved to your browser local storage!");
             } else {
                 localStorage.removeItem('hypixel_api_key');
-                alert("API klíč byl smazán.");
+                alert("API key removed.");
             }
         }
 
@@ -249,17 +336,18 @@
             const loadingMsg = document.getElementById('loadingMsg');
             const errorMsg = document.getElementById('errorMsg');
             const resultsContainer = document.getElementById('resultsContainer');
-            const rawJsonOutput = document.getElementById('rawJsonOutput');
-            const resultTitle = document.getElementById('resultTitle');
+            const profilesGridContainer = document.getElementById('profilesGridContainer');
+            const profileDetailContainer = document.getElementById('profileDetailContainer');
 
             errorMsg.style.display = 'none';
             resultsContainer.style.display = 'none';
+            profileDetailContainer.style.display = 'none';
+            profilesGridContainer.innerHTML = '';
 
-            // Získání klíče z localStorage
             const apiKey = localStorage.getItem('hypixel_api_key');
 
             if (!apiKey) {
-                showError("Nejprve si nahoře vlož a ulož svůj Hypixel API klíč!");
+                showError("Please enter and save your Hypixel API Key first!");
                 return;
             }
 
@@ -268,23 +356,50 @@
 
             try {
                 const hypixelRes = await fetch(`https://api.hypixel.net/v2/skyblock/profiles?uuid=${uuid}`, {
-    headers: {
-        'API-Key': apiKey
-    }
-});
+                    headers: {
+                        'API-Key': apiKey
+                    }
+                });
                 
                 if (!hypixelRes.ok) {
-                    throw new Error("Nepodařilo se načíst data z Hypixel API (zkontroluj, zda je tvůj API klíč správný).");
+                    throw new Error(`Hypixel API returned error ${hypixelRes.status}: ${hypixelRes.statusText}`);
                 }
 
                 const hypixelData = await hypixelRes.json();
 
                 if (!hypixelData.success || !hypixelData.profiles || hypixelData.profiles.length === 0) {
-                    throw new Error(`Pro hráče ${playerName} nebyly nalezeny žádné SkyBlock profily (nebo má zapnuté API v nastavení).`);
+                    throw new Error(`No SkyBlock profiles found for player ${playerName} (or API is disabled in game settings).`);
                 }
 
-                resultTitle.textContent = `Surová data pro hráče: ${playerName}`;
-                rawJsonOutput.textContent = JSON.stringify(hypixelData, null, 2);
+                // Render profile tiles
+                document.getElementById('resultTitle').textContent = `Profiles for ${playerName}:`;
+                
+                hypixelData.profiles.forEach((profile, index) => {
+                    const profileName = profile.cute_name || `Profile ${index + 1}`;
+                    const gameMode = profile.game_mode || 'normal';
+                    const profileId = profile.profile_id;
+
+                    const card = document.createElement('div');
+                    card.className = 'profile-card';
+                    card.innerHTML = `
+                        <div class="profile-name">🌿 ${profileName}</div>
+                        <div class="profile-id">ID: ${profileId.substring(0, 8)}...</div>
+                        <span class="profile-mode">${gameMode}</span>
+                    `;
+
+                    // Click on tile shows raw data for this specific profile
+                    card.onclick = () => {
+                        document.querySelectorAll('.profile-card').forEach(c => c.classList.remove('selected'));
+                        card.classList.add('selected');
+                        
+                        document.getElementById('detailTitle').textContent = `Raw Data for Profile: ${profileName}`;
+                        document.getElementById('rawJsonOutput').textContent = JSON.stringify(profile, null, 2);
+                        profileDetailContainer.style.display = 'block';
+                    };
+
+                    profilesGridContainer.appendChild(card);
+                });
+
                 resultsContainer.style.display = 'block';
                 clickedButton.classList.add('active');
 
@@ -303,4 +418,3 @@
     </script>
 </body>
 </html>
-<!-- Pushni to kurva --!>
