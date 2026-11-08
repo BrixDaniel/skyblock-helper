@@ -31,7 +31,7 @@
             justify-content: center;
             align-items: center;
         }
-
+        
         .container {
             max-width: 600px;
             width: 100%;
@@ -39,7 +39,18 @@
         }
 
         header {
-            margin-bottom: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
         }
 
         header h1 {
@@ -55,6 +66,12 @@
             color: var(--text-muted);
             margin-top: 8px;
             font-size: 0.95rem;
+        }
+
+        .title-group p {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-top: 2px;
         }
 
         .coop-card {
@@ -100,13 +117,39 @@
             color: var(--accent-gold);
             transform: translateY(-2px);
         }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #F97316 0%, #C2410C 100%); /* barva podle stránky */
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 14px rgba(249, 115, 22, 0.3);
+            font-size: 24px;
+            text-decoration: none; /* odstraní podtržení odkazu */
+            transition: transform 0.2s, filter 0.2s;
+        }
+
+        .logo-icon:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+        }
+        
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Hypixel SkyBlock <span>Coop Profiler</span></h1>
-            <p>Kliknutím na hráče otevřete jeho SkyCrypt profil v nové záložce.</p>
+            <div class="header-left">
+                <a href="index.html" class="logo-icon">🔍</a>
+                <div class="title-group">
+                    <h1>Hypixel SkyBlock <span>Coop Profiler</span></h1>
+                    <p>Kliknutím na hráče otevřete jeho SkyCrypt profil v nové záložce.</p>
+                </div>
+            </div>
+            <h1> Logo
         </header>
 
         <div class="coop-card">
